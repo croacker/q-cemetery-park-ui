@@ -1,6 +1,6 @@
 <template>
 <div class="q-pa-md">
-  <q-layout view="lHh Lpr lFf">
+  <q-layout view="hHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
         <q-btn
@@ -49,11 +49,6 @@
 <script>
 
 const menuList = [
-  {
-    icon: '',
-    label: '',
-    separator: true
-  },
   {
     icon: 'map',
     label: 'Участки',
