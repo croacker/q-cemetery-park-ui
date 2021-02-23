@@ -9,8 +9,7 @@
           round
           icon="menu"
           aria-label="Menu"
-          @click="leftDrawerOpen = !leftDrawerOpen"
-        />
+          @click="leftDrawerOpen = !leftDrawerOpen"/>
 
         <q-toolbar-title>
         </q-toolbar-title>
@@ -51,39 +50,28 @@
 
 const menuList = [
   {
-    icon: 'inbox',
-    label: 'Inbox',
+    icon: '',
+    label: '',
     separator: true
   },
   {
-    icon: 'send',
-    label: 'Outbox',
+    icon: 'map',
+    label: 'Участки',
     separator: false
   },
   {
-    icon: 'delete',
-    label: 'Trash',
+    icon: 'book',
+    label: 'Справочники',
     separator: false
   },
   {
-    icon: 'error',
-    label: 'Spam',
+    icon: 'stacked_bar_chart',
+    label: 'Аналитика',
     separator: true
   },
   {
     icon: 'settings',
-    label: 'Settings',
-    separator: false
-  },
-  {
-    icon: 'feedback',
-    label: 'Send Feedback',
-    separator: false
-  },
-  {
-    icon: 'help',
-    iconColor: 'primary',
-    label: 'Help',
+    label: 'Параметры',
     separator: false
   }
 ]
