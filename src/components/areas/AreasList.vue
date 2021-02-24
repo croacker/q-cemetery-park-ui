@@ -85,7 +85,6 @@ export default {
     }
   },
   mounted () {
-    // this.initList()
   },
   methods: {
     editArea (id) {
@@ -97,7 +96,8 @@ export default {
       this.removeDialog = true
     },
     confirmRemoveArea () {
-      console.log('confirmRemoveArea ' + this.currentAreaId)
+      this.$store.dispatch('doRemoveCemeteryArea', this.currentAreaId)
+      this.currentAreaId = null
       this.removeDialog = false
     }
   }

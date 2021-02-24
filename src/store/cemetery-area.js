@@ -9,14 +9,15 @@ const mutations = {
   addCemeteryArea (state, cemeteryArea) {
     state.cemeteryAreas.push(cemeteryArea)
   },
-  removeCemeteryArea (state, cemeteryArea) {
-    state.cemeteryAreas.splice(state.cemeteryAreas.findIndex(el => el.id === cemeteryArea.id), 1)
+  removeCemeteryArea (state, id) {
+    const removeId = state.cemeteryAreas.findIndex(area => area.id === id)
+    state.cemeteryAreas.splice(removeId, 1)
   }
 }
 
 const actions = {
-  async removeCemeteryArea ({ commit }, area) {
-    commit('removeCemeteryArea', area)
+  async doRemoveCemeteryArea ({ commit }, id) {
+    commit('removeCemeteryArea', id)
   },
 
   async clearAreas ({ commit }, areas) {
