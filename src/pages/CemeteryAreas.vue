@@ -27,6 +27,7 @@ export default {
     }
   },
   mounted () {
+    this.initAreas()
     this.initMap()
   },
 
@@ -39,6 +40,16 @@ export default {
           lng: 104.179257
         },
         zoom: 22
+      })
+
+      this.areas.forEach(area => {
+        const areaPolygon = new google.maps.Polygon({
+          paths: area.coord.map(item => { return { lat: item[0], lng: item[1] } }),
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillOpacity: 0.35
+        })
+        areaPolygon.setMap(map)
       })
 
       const drawingManager = new google.maps.drawing.DrawingManager({
@@ -62,6 +73,18 @@ export default {
       })
       drawingManager.setMap(map)
     },
+
+    initAreas () {
+      this.areas = this.$store.getters.cemeteryAreas.map(area => {
+        return {
+          id: area.id,
+          name: '',
+          description: '',
+          coord: area.coord
+        }
+      })
+    },
+
     async saveArea (overlay) {
       const coord = overlay.getPath().getArray().map(el => [el.lat(), el.lng()])
       const areaInfo = { coord: coord, overlay: overlay }
@@ -74,11 +97,6 @@ export default {
       areaInfoStored.name = areaInfo.name
       areas.push(areaInfo)
       this.$store.commit('addCemeteryArea', areaInfoStored)
-      // this.currentArea = areaInfo
-      // this.currentAreaId = areaInfo.id
-      // this.currentAreaName = areaInfo.name
-      // this.currentAreaDescription = areaInfo.description
-      // this.cemeteryAreaEditDialog = true
     }
   }
 }
