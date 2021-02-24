@@ -40,7 +40,7 @@
     </q-drawer>
 
     <q-page-container>
-      <router-view />
+      <router-view id="router-view-main"/>
     </q-page-container>
   </q-layout>
   </div>

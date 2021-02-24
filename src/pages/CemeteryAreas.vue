@@ -1,6 +1,8 @@
 <template>
   <div class="row">
-    <div class="col-3"><areas-list/></div>
+    <div class="col-3"><areas-list
+      @removeAreaFromList="removeAreaFromList"
+      @selectAreaFromList="selectAreaFromList"/></div>
     <div class="col-9">
       <div
         id="gmapAreas"
@@ -23,7 +25,8 @@ export default {
   },
   data () {
     return {
-      areas: []
+      areas: [],
+      gmap: null
     }
   },
   mounted () {
@@ -34,7 +37,7 @@ export default {
   methods: {
     initMap () {
       const panel = this
-      const map = new google.maps.Map(this.$refs.gmapAreas, {
+      panel.gmap = new google.maps.Map(this.$refs.gmapAreas, {
         center: {
           lat: 52.329737,
           lng: 104.179257
@@ -44,12 +47,15 @@ export default {
 
       this.areas.forEach(area => {
         const areaPolygon = new google.maps.Polygon({
-          paths: area.coord.map(item => { return { lat: item[0], lng: item[1] } }),
-          strokeOpacity: 0.8,
-          strokeWeight: 2,
-          fillOpacity: 0.35
+          paths: area.coord.map(item => { return { lat: item[0], lng: item[1] } })
         })
-        areaPolygon.setMap(map)
+        area.overlay = areaPolygon
+        areaPolygon.setMap(panel.gmap)
+
+        google.maps.event.addListener(areaPolygon, 'click', function (event) {
+          panel.clearEditable()
+          areaPolygon.setEditable(true)
+        })
       })
 
       const drawingManager = new google.maps.drawing.DrawingManager({
@@ -58,8 +64,7 @@ export default {
         drawingControlOptions: {
           position: google.maps.ControlPosition.TOP_LEFT,
           drawingModes: [
-            google.maps.drawing.OverlayType.POLYGON,
-            google.maps.drawing.OverlayType.POLYLINE
+            google.maps.drawing.OverlayType.POLYGON
           ]
         }
       })
@@ -68,10 +73,13 @@ export default {
       console.log(cemeteryAreas)
 
       google.maps.event.addListener(drawingManager, 'overlaycomplete', function (e) {
+        google.maps.event.addListener(e.overlay, 'click', function (event) {
+          panel.clearEditable()
+          e.overlay.setEditable(true)
+        })
         panel.saveArea(e.overlay)
-        console.log(e.overlay)
       })
-      drawingManager.setMap(map)
+      drawingManager.setMap(this.gmap)
     },
 
     initAreas () {
@@ -87,17 +95,31 @@ export default {
 
     async saveArea (overlay) {
       const coord = overlay.getPath().getArray().map(el => [el.lat(), el.lng()])
-      const areaInfo = { coord: coord, overlay: overlay }
-      const areaInfoStored = { coord: coord }
-      const areas = this.areas
-      areaInfo.id = areas.length
-      areaInfo.name = 'Участок ' + areaInfo.id
-      areaInfo.description = ''
-      areaInfoStored.id = areaInfo.id
-      areaInfoStored.name = areaInfo.name
-      areas.push(areaInfo)
-      this.$store.commit('addCemeteryArea', areaInfoStored)
+      let id = Math.max(...this.areas.map(el => { return el.id }))
+      if (id === -Infinity) {
+        id = 0
+      }
+      id += 1
+      const name = 'Участок ' + id
+      const area = { id: id, name: name, description: '', coord: coord, overlay: overlay }
+      this.areas.push(area)
+      const areaStored = { id: id, name: name, description: '', coord: coord }
+      this.$store.commit('addCemeteryArea', areaStored)
+      this.$store.commit('currentCemeteryArea', areaStored)
+    },
+    selectAreaFromList (id) {
+      this.clearEditable()
+      const area = this.areas.find(area => { return area.id === id })
+      area.overlay.setEditable(true)
+    },
+    removeAreaFromList (id) {
+      const area = this.areas.find(area => { return area.id === id })
+      area.overlay.setMap(null)
+    },
+    clearEditable () {
+      this.areas.forEach(area => { area.overlay.setEditable(false) })
     }
+
   }
 }
 </script>
