@@ -1,14 +1,17 @@
 <template>
   <div class="row">
-    <div class="col-3"><areas-list
-      @removeAreaFromList="removeAreaFromList"
-      @selectAreaFromList="selectAreaFromList"/></div>
     <div class="col-9">
       <div
         id="gmapAreas"
         ref="gmapAreas"
         style="width: 100%; height: 800px"
       ></div>
+    </div>
+    <div class="col-3">
+      <areas-list
+        @removeAreaFromList="removeAreaFromList"
+        @selectAreaFromList="selectAreaFromList"
+        @addNewArea="addNewArea"/>
     </div>
   </div>
 </template>
@@ -26,7 +29,8 @@ export default {
   data () {
     return {
       areas: [],
-      gmap: null
+      gmap: null,
+      drawingManager: null
     }
   },
   mounted () {
@@ -58,7 +62,7 @@ export default {
         })
       })
 
-      const drawingManager = new google.maps.drawing.DrawingManager({
+      this.drawingManager = new google.maps.drawing.DrawingManager({
         drawingMode: null,
         drawingControl: true,
         drawingControlOptions: {
@@ -72,14 +76,14 @@ export default {
       const cemeteryAreas = this.$store.getters.cemeteryAreas
       console.log(cemeteryAreas)
 
-      google.maps.event.addListener(drawingManager, 'overlaycomplete', function (e) {
+      google.maps.event.addListener(this.drawingManager, 'overlaycomplete', function (e) {
         google.maps.event.addListener(e.overlay, 'click', function (event) {
           panel.clearEditable()
           e.overlay.setEditable(true)
         })
         panel.saveArea(e.overlay)
       })
-      drawingManager.setMap(this.gmap)
+      this.drawingManager.setMap(this.gmap)
     },
 
     initAreas () {
@@ -118,6 +122,10 @@ export default {
     },
     clearEditable () {
       this.areas.forEach(area => { area.overlay.setEditable(false) })
+    },
+    addNewArea () {
+      this.clearEditable()
+      this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON)
     }
 
   }

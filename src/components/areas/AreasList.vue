@@ -4,7 +4,7 @@
       <q-toolbar class="bg-primary text-white">
         <q-toolbar-title>Участки</q-toolbar-title>
 
-        <q-btn flat round dense icon="add"/>
+        <q-btn flat round dense icon="add" @click="addArea()"/>
       </q-toolbar>
       <q-list bordered>
         <q-item v-for="area in cemeteryAreas" :key="area.id" class="q-my-sm" clickable v-ripple
@@ -108,6 +108,9 @@ export default {
     confirmEdit () {
       this.currentAreaId = null
       this.editDialog = false
+    },
+    addArea () {
+      this.$emit('addNewArea', '')
     }
   }
 }

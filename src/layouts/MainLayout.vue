@@ -1,7 +1,7 @@
 <template>
 <div class="q-pa-md">
-  <q-layout view="hHh Lpr lFf">
-    <q-header elevated>
+  <q-layout view="hHh Lpr lFf" >
+    <q-header elevated class="bg-blue-grey-5">
       <q-toolbar>
         <q-btn
           flat
