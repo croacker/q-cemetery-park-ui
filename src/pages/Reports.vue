@@ -1,11 +1,15 @@
 <template>
   <q-page class="flex flex-center">
-    <q-label>Отчеты</q-label>
+    <div class="q-pa-md q-gutter-sm">
+      <q-banner class="bg-primary text-white">
+        Отчеты в разработке
+      </q-banner>
+    </div>
   </q-page>
 </template>
 
 <script>
 export default {
-  name: 'PageIndex'
+  name: 'Reports'
 }
 </script>

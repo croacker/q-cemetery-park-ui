@@ -26,7 +26,10 @@
     >
       <q-list>
         <template v-for="(menuItem, index) in menuList">
-              <q-item :key="index" clickable :active="menuItem.label === 'Outbox'" v-ripple>
+              <q-item :key="index" clickable
+                      :active="menuItem === activeItem"
+                      @click="onSelectItem(menuItem)"
+                      v-ripple>
                 <q-item-section avatar>
                   <q-icon :name="menuItem.icon" />
                 </q-item-section>
@@ -52,21 +55,25 @@ const menuList = [
   {
     icon: 'map',
     label: 'Участки',
+    route: 'cemetery-areas',
     separator: false
   },
   {
     icon: 'book',
     label: 'Справочники',
+    route: 'references',
     separator: false
   },
   {
     icon: 'stacked_bar_chart',
     label: 'Аналитика',
+    route: 'reports',
     separator: true
   },
   {
     icon: 'settings',
     label: 'Параметры',
+    route: 'settings',
     separator: false
   }
 ]
@@ -76,7 +83,17 @@ export default {
   data () {
     return {
       leftDrawerOpen: false,
+      activeItem: null,
       menuList: menuList
+    }
+  },
+  mounted () {
+    this.activeItem = menuList[0]
+  },
+  methods: {
+    onSelectItem (selectedItem) {
+      this.activeItem = selectedItem
+      this.$router.push(selectedItem.route)
     }
   }
 }
