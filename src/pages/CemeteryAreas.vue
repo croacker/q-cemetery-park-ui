@@ -115,6 +115,9 @@ export default {
       this.clearEditable()
       const area = this.areas.find(area => { return area.id === id })
       area.overlay.setEditable(true)
+      this.drawingManager.setDrawingMode(null)
+      const latLng = { lat: area.coord[0][0], lng: area.coord[0][1] }
+      this.gmap.setCenter(latLng)
     },
     removeAreaFromList (id) {
       const area = this.areas.find(area => { return area.id === id })

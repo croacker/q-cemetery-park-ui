@@ -47,7 +47,7 @@
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          <q-input dense v-model="currentArea.description" filled type="textarea" label="Описание"/>
+          <q-input dense v-model="currentArea.description" filled type="text" autogrow label="Описание"/>
         </q-card-section>
 
         <q-card-actions align="right" class="text-primary">
