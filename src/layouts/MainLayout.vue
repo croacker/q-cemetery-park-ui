@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md">
+  <div class="q-pa-sm">
     <q-layout view="hHh Lpr lFf">
       <q-header elevated class="bg-blue-grey-5">
         <q-toolbar>
@@ -20,7 +20,6 @@
 
       <q-drawer
         v-model="leftDrawerOpen"
-        show-if-above
         bordered
         content-class="bg-grey-1"
       >

@@ -1,17 +1,17 @@
 <template>
   <div>
-    <div class="q-pa-md">
+    <div class="q-pa-xs">
       <q-toolbar class="bg-primary text-white">
         <q-toolbar-title>Участки</q-toolbar-title>
 
         <q-btn flat round dense icon="add" @click="addArea()"/>
       </q-toolbar>
       <q-list bordered>
-        <q-item v-for="area in cemeteryAreas" :key="area.id" class="q-my-sm" clickable v-ripple
+        <q-item v-for="area in cemeteryAreas" :key="area.id" class="q-my-xs" clickable v-ripple
           :active="currentArea == area"
           @click="onSelectArea(area)">
           <q-item-section>
-            <q-item-label>{{ area.name }}</q-item-label>
+            <q-item-label multiline>{{ area.name }}</q-item-label>
           </q-item-section>
 
           <q-item-section top side>

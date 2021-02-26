@@ -1,13 +1,13 @@
 <template>
   <div class="row">
-    <div class="col-9">
+    <div class="col-10">
       <div
         id="gmapAreas"
         ref="gmapAreas"
         style="width: 100%; height: 800px"
       ></div>
     </div>
-    <div class="col-3">
+    <div class="col-2">
       <areas-list
         @removeAreaFromList="removeAreaFromList"
         @selectAreaFromList="selectAreaFromList"
