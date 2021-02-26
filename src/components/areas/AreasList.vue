@@ -1,12 +1,12 @@
 <template>
   <div>
-    <div class="q-pa-xs">
+    <div class="q-pl-xs">
       <q-toolbar class="bg-primary text-white">
         <q-toolbar-title>Участки</q-toolbar-title>
 
         <q-btn flat round dense icon="add" @click="addArea()"/>
       </q-toolbar>
-      <q-list bordered>
+      <q-list>
         <q-item v-for="area in cemeteryAreas" :key="area.id" class="q-my-xs" clickable v-ripple
           :active="currentArea == area"
           @click="onSelectArea(area)">
