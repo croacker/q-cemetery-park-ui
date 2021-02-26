@@ -1,51 +1,69 @@
 <template>
-<div class="q-pa-md">
-  <q-layout view="hHh Lpr lFf" >
-    <q-header elevated class="bg-blue-grey-5">
-      <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="leftDrawerOpen = !leftDrawerOpen"/>
+  <div class="q-pa-md">
+    <q-layout view="hHh Lpr lFf">
+      <q-header elevated class="bg-blue-grey-5">
+        <q-toolbar>
+          <q-btn
+            flat
+            dense
+            round
+            icon="menu"
+            aria-label="Menu"
+            @click="leftDrawerOpen = !leftDrawerOpen"/>
 
-        <q-toolbar-title>
-        </q-toolbar-title>
+          <q-toolbar-title>
+          </q-toolbar-title>
 
-        <div></div>
-      </q-toolbar>
-    </q-header>
+          <div></div>
+        </q-toolbar>
+      </q-header>
 
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-      content-class="bg-grey-1"
-    >
-      <q-list>
-        <template v-for="(menuItem, index) in menuList">
-              <q-item :key="index" clickable
-                      :active="menuItem === activeItem"
-                      @click="onSelectItem(menuItem)"
-                      v-ripple>
-                <q-item-section avatar>
-                  <q-icon :name="menuItem.icon" />
-                </q-item-section>
-                <q-item-section>
-                  {{ menuItem.label }}
-                </q-item-section>
-              </q-item>
-              <q-separator :key="'sep' + index"  v-if="menuItem.separator" />
-            </template>
-      </q-list>
-    </q-drawer>
+      <q-drawer
+        v-model="leftDrawerOpen"
+        show-if-above
+        bordered
+        content-class="bg-grey-1"
+      >
+        <q-list>
+          <template v-for="(menuItem, index) in menuList">
+            <q-expansion-item v-if="menuItem.child" :key="index"
+                              :content-inset-level="0.5"
+                              :icon="menuItem.icon"
+                              :caption="menuItem.label">
+              <template v-for="(childItem, childIndex) in menuItem.child">
+                <q-item :key="childIndex" clickable
+                        :active="childItem === activeItem"
+                        @click="onSelectItem(childItem)"
+                        v-ripple>
+                  <q-item-section avatar>
+                    <q-icon :name="childItem.icon"/>
+                  </q-item-section>
+                  <q-item-section>
+                    {{ childItem.label }}
+                  </q-item-section>
+                </q-item>
+              </template>
+            </q-expansion-item>
+            <q-item v-else :key="index" clickable
+                    :active="menuItem === activeItem"
+                    @click="onSelectItem(menuItem)"
+                    v-ripple>
+              <q-item-section avatar>
+                <q-icon :name="menuItem.icon"/>
+              </q-item-section>
+              <q-item-section>
+                {{ menuItem.label }}
+              </q-item-section>
+            </q-item>
+            <q-separator :key="'sep' + index" v-if="menuItem.separator"/>
+          </template>
+        </q-list>
+      </q-drawer>
 
-    <q-page-container>
-      <router-view id="router-view-main"/>
-    </q-page-container>
-  </q-layout>
+      <q-page-container>
+        <router-view id="router-view-main"/>
+      </q-page-container>
+    </q-layout>
   </div>
 </template>
 
@@ -62,6 +80,14 @@ const menuList = [
     icon: 'book',
     label: 'Справочники',
     route: 'references',
+    child: [
+      {
+        icon: 'person',
+        label: 'Пользователи',
+        route: 'references',
+        separator: false
+      }
+    ],
     separator: false
   },
   {
