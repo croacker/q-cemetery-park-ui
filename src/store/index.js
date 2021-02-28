@@ -1,11 +1,15 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import VuexPersistence from 'vuex-persist'
+import VueApexCharts from 'vue-apexcharts'
 
 import cemeteryArea from './cemetery-area'
 import user from './user'
 
 Vue.use(Vuex)
+Vue.use(VueApexCharts)
+
+Vue.component('apexchart', VueApexCharts)
 
 const vuexSessionStorage = new VuexPersistence({
   storage: window.sessionStorage
