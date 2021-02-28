@@ -12,8 +12,11 @@
             @click="leftDrawerOpen = !leftDrawerOpen"/>
 
           <q-toolbar-title>
+            План участков
           </q-toolbar-title>
-
+          <q-btn flat round dense icon="directions_run">
+            <q-tooltip>Выход</q-tooltip>
+          </q-btn>
           <div></div>
         </q-toolbar>
       </q-header>
@@ -83,7 +86,7 @@ const menuList = [
       {
         icon: 'person',
         label: 'Пользователи',
-        route: 'references',
+        route: 'users',
         separator: false
       }
     ],
