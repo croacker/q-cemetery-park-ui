@@ -1,7 +1,7 @@
 <template>
-  <q-page class="flex flex-center">
+  <q-page class="flex">
     <div>
-      <apexchart width="1000" type="line" :options="options" :series="series"></apexchart>
+      <apexchart width="1200" type="line" :options="options" :series="series"></apexchart>
     </div>
   </q-page>
 </template>
