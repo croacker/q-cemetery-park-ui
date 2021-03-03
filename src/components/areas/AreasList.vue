@@ -4,7 +4,9 @@
       <q-toolbar class="bg-primary text-white">
         <q-toolbar-title>Участки</q-toolbar-title>
 
-        <q-btn flat round dense icon="add" @click="addArea()"/>
+        <q-btn flat round dense icon="add" @click="addArea()">
+          <q-tooltip>Добавить участок</q-tooltip>
+        </q-btn>
       </q-toolbar>
       <q-list>
         <q-item v-for="area in cemeteryAreas" :key="area.id" class="q-my-xs" clickable v-ripple
@@ -16,8 +18,12 @@
 
           <q-item-section top side>
             <div class="text-grey-8 q-gutter-xs">
-              <q-btn class="gt-xs" size="12px" flat dense round icon="edit" @click="editArea(area)"/>
-              <q-btn class="gt-xs" size="12px" flat dense round icon="delete" @click="removeArea(area.id)"/>
+              <q-btn class="gt-xs" size="12px" flat dense round icon="edit" @click="editArea(area)">
+                <q-tooltip>Редактировать</q-tooltip>
+              </q-btn>
+              <q-btn class="gt-xs" size="12px" flat dense round color="red" icon="delete" @click="removeArea(area.id)">
+                <q-tooltip>Удалить</q-tooltip>
+              </q-btn>
             </div>
           </q-item-section>
         </q-item>

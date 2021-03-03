@@ -5,9 +5,29 @@
       separator="cell"
       :data="data"
       :columns="columns"
+      :filter="filter"
       row-key="name"
       selection="multiple"
-    />
+      no-data-label="Нет данных"
+      no-results-label="Нет данных"
+    >
+      <template v-slot:top-right>
+        <q-input borderless debounce="400" v-model="filter" placeholder="Поиск">
+          <template v-slot:append>
+            <q-icon name="search"/>
+          </template>
+        </q-input>
+        <q-btn color="primary" :disable="loading" icon="person_add" class="q-ml-md">
+          <q-tooltip>Создать</q-tooltip>
+        </q-btn>
+        <q-btn color="primary" :disable="loading" icon="mode_edit" class="q-ml-md">
+          <q-tooltip>Редактировать</q-tooltip>
+        </q-btn>
+        <q-btn color="red" :disable="loading" icon="person_off" class="q-ml-md">
+          <q-tooltip>Удалить</q-tooltip>
+        </q-btn>
+      </template>
+    </q-table>
   </q-page>
 </template>
 
@@ -16,6 +36,8 @@ export default {
   name: 'UsersReferences',
   data () {
     return {
+      filter: '',
+      loading: false,
       columns: [
         {
           name: 'name',
@@ -35,9 +57,19 @@ export default {
           active: true
         },
         {
-          name: 'user',
+          name: 'user1',
           role: 'USER',
           active: true
+        },
+        {
+          name: 'user2',
+          role: 'USER',
+          active: true
+        },
+        {
+          name: 'user3',
+          role: 'USER',
+          active: false
         }
       ]
     }

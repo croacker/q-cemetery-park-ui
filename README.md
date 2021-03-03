@@ -25,7 +25,7 @@ quasar build
 ### Customize the configuration
 See [Configuring quasar.conf.js](https://quasar.dev/quasar-cli/quasar-conf-js).
 
-### Run in Heroky
+### Heroky
 1. ```heroku login```
 2. ```heroku container:login```
 3. ```docker push registry.heroku.com/cemetery-park-ui/web```
