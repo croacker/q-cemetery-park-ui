@@ -1,10 +1,14 @@
 const state = {
-  currentUser: {}
+  currentUser: null,
+  users: []
 }
 
 const mutations = {
   currentUser (state, currentUser) {
     state.currentUser = currentUser
+  },
+  users (state, users) {
+    state.users = users
   }
 }
 
@@ -17,6 +21,9 @@ const actions = {
 const getters = {
   currentUser (state) {
     return state.currentUser
+  },
+  users (state) {
+    return state.users
   }
 }
 
