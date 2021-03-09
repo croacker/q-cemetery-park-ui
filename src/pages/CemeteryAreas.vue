@@ -9,9 +9,11 @@
     </div>
     <div class="col-2">
       <areas-list
-        @removeAreaFromList="removeAreaFromList"
-        @selectAreaFromList="selectAreaFromList"
-        @addNewArea="addNewArea"/>
+        @onRemoveAreaFromList="onRemoveAreaFromList"
+        @onSelectAreaFromList="onSelectAreaFromList"
+        @onAddQuarter="onAddQuarter"
+        @onAddArea="onAddArea"
+        @onAddBurial="onAddBurial"/>
     </div>
   </div>
 </template>
@@ -30,7 +32,8 @@ export default {
     return {
       areas: [],
       gmap: null,
-      drawingManager: null
+      drawingManager: null,
+      addPolygonMode: null // Режим добавления quarter, area, burial
     }
   },
   mounted () {
@@ -81,7 +84,7 @@ export default {
           panel.clearEditable()
           e.overlay.setEditable(true)
         })
-        panel.saveArea(e.overlay)
+        panel.savePolygon(e.overlay)
       })
       this.drawingManager.setMap(this.gmap)
     },
@@ -97,21 +100,23 @@ export default {
       })
     },
 
-    async saveArea (overlay) {
+    async savePolygon (overlay) {
+      overlay.setOptions({ fillOpacity: this.getPolygonOpacity() })
+
       const coord = overlay.getPath().getArray().map(el => [el.lat(), el.lng()])
       let id = Math.max(...this.areas.map(el => { return el.id }))
       if (id === -Infinity) {
         id = 0
       }
       id += 1
-      const name = 'Участок ' + id
+      const name = this.getPolygonDefaultName(id)
       const area = { id: id, name: name, description: '', coord: coord, overlay: overlay }
       this.areas.push(area)
       const areaStored = { id: id, name: name, description: '', coord: coord }
       this.$store.commit('addCemeteryArea', areaStored)
       this.$store.commit('currentCemeteryArea', areaStored)
     },
-    selectAreaFromList (id) {
+    onSelectAreaFromList (id) {
       this.clearEditable()
       const area = this.areas.find(area => { return area.id === id })
       area.overlay.setEditable(true)
@@ -119,18 +124,52 @@ export default {
       const latLng = { lat: area.coord[0][0], lng: area.coord[0][1] }
       this.gmap.setCenter(latLng)
     },
-    removeAreaFromList (id) {
+    onRemoveAreaFromList (id) {
       const area = this.areas.find(area => { return area.id === id })
       area.overlay.setMap(null)
     },
     clearEditable () {
       this.areas.forEach(area => { area.overlay.setEditable(false) })
     },
-    addNewArea () {
+    onAddQuarter () {
       this.clearEditable()
+      this.addPolygonMode = 'quarter'
       this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON)
-    }
+    },
+    onAddArea () {
+      this.clearEditable()
+      this.addPolygonMode = 'area'
+      this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON)
+    },
+    onAddBurial () {
+      this.clearEditable()
+      this.addPolygonMode = 'burial'
+      this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON)
+    },
 
+    getPolygonOpacity () {
+      let fillOpacity = 0.1
+      if (this.addPolygonMode === 'quarter') {
+        fillOpacity = 0.1
+      } else if (this.addPolygonMode === 'area') {
+        fillOpacity = 0.35
+      } else if (this.addPolygonMode === 'burial') {
+        fillOpacity = 0.55
+      }
+      return fillOpacity
+    },
+
+    getPolygonDefaultName (id) {
+      let name = 'Захоронение '
+      if (this.addPolygonMode === 'quarter') {
+        name = 'Квартал '
+      } else if (this.addPolygonMode === 'area') {
+        name = 'Участок '
+      } else if (this.addPolygonMode === 'burial') {
+        name = 'Захоронение '
+      }
+      return name + id
+    }
   }
 }
 </script>

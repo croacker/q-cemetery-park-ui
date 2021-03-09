@@ -4,12 +4,18 @@
       <q-toolbar class="bg-primary text-white">
         <q-toolbar-title>Участки</q-toolbar-title>
 
-        <q-btn flat round dense icon="add" @click="addArea()">
+        <q-btn flat round dense icon="add_box" @click="onAddQuarter()">
+          <q-tooltip>Добавить квартал</q-tooltip>
+        </q-btn>
+        <q-btn flat round dense icon="bookmark_add" @click="onAddArea()">
           <q-tooltip>Добавить участок</q-tooltip>
+        </q-btn>
+        <q-btn flat round dense icon="add_location" @click="onAddBurial()">
+          <q-tooltip>Добавить захоронение</q-tooltip>
         </q-btn>
       </q-toolbar>
       <q-list>
-        <q-item v-for="area in cemeteryAreas" :key="area.id" class="q-my-xs" clickable v-ripple
+        <q-item v-for="area in cemeteryPolygons" :key="area.id" class="q-my-xs" clickable v-ripple
           :active="currentArea == area"
           @click="onSelectArea(area)">
           <q-item-section>
@@ -80,7 +86,7 @@ export default {
     }
   },
   computed: {
-    cemeteryAreas () {
+    cemeteryPolygons () {
       return this.$store.getters.cemeteryAreas.map(stored => {
         return {
           id: stored.id,
@@ -95,7 +101,7 @@ export default {
   methods: {
     onSelectArea (area) {
       this.currentArea = area
-      this.$emit('selectAreaFromList', this.currentArea.id)
+      this.$emit('onSelectAreaFromList', this.currentArea.id)
     },
     editArea (area) {
       this.currentArea = area
@@ -107,7 +113,7 @@ export default {
     },
     confirmRemoveArea () {
       this.$store.dispatch('doRemoveCemeteryArea', this.currentAreaId)
-      this.$emit('removeAreaFromList', this.currentAreaId)
+      this.$emit('onRemoveAreaFromList', this.currentAreaId)
       this.currentAreaId = null
       this.removeDialog = false
     },
@@ -115,8 +121,14 @@ export default {
       this.currentAreaId = null
       this.editDialog = false
     },
-    addArea () {
-      this.$emit('addNewArea', '')
+    onAddQuarter () {
+      this.$emit('onAddQuarter', '')
+    },
+    onAddArea () {
+      this.$emit('onAddArea', '')
+    },
+    onAddBurial () {
+      this.$emit('onAddBurial', '')
     }
   }
 }

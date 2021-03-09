@@ -12,7 +12,7 @@
             @click="leftDrawerOpen = !leftDrawerOpen"/>
 
           <q-toolbar-title>
-            План участков
+            План
           </q-toolbar-title>
           <q-btn flat round dense icon="directions_run">
             <q-tooltip>Выход</q-tooltip>
