@@ -4,10 +4,10 @@
       <q-toolbar class="bg-primary text-white">
         <q-toolbar-title>Участки</q-toolbar-title>
 
-        <q-btn flat round dense icon="add_box" @click="onAddQuarter()">
+        <q-btn flat round dense icon="add" @click="onAddQuarter()">
           <q-tooltip>Добавить квартал</q-tooltip>
         </q-btn>
-        <q-btn flat round dense icon="bookmark_add" @click="onAddArea()">
+        <q-btn flat round dense icon="add_box" @click="onAddArea()">
           <q-tooltip>Добавить участок</q-tooltip>
         </q-btn>
         <q-btn flat round dense icon="add_location" @click="onAddBurial()">
@@ -15,20 +15,23 @@
         </q-btn>
       </q-toolbar>
       <q-list>
-        <q-item v-for="area in cemeteryPolygons" :key="area.id" class="q-my-xs" clickable v-ripple
-          :active="currentArea == area"
-          @click="onSelectArea(area)">
+        <q-item v-for="polygon in cemeteryPolygons" :key="polygon.id" class="q-my-xs" clickable v-ripple
+          :active="currentPolygon == polygon"
+          @click="onSelectArea(polygon)">
           <q-item-section>
-            <q-item-label multiline>{{ area.name }}</q-item-label>
+            <q-item-label multiline>{{ polygon.name }}</q-item-label>
           </q-item-section>
 
           <q-item-section top side>
             <div class="text-grey-8 q-gutter-xs">
-              <q-btn class="gt-xs" size="12px" flat dense round icon="edit" @click="editArea(area)">
+              <q-btn class="gt-xs" size="12px" flat dense round icon="edit" @click="editPolygon(polygon)">
                 <q-tooltip>Редактировать</q-tooltip>
               </q-btn>
-              <q-btn class="gt-xs" size="12px" flat dense round color="red" icon="delete" @click="removeArea(area.id)">
+              <q-btn class="gt-xs" size="12px" flat dense round color="red" icon="delete" @click="removePolygon(polygon.id)">
                 <q-tooltip>Удалить</q-tooltip>
+              </q-btn>
+              <q-btn class="gt-xs" size="12px" flat dense round icon="add_box" @click="removePolygon(polygon.id)">
+                <q-tooltip>Добавить участок</q-tooltip>
               </q-btn>
             </div>
           </q-item-section>
@@ -51,15 +54,15 @@
     <q-dialog v-model="editDialog" persistent>
       <q-card style="min-width: 350px">
         <q-card-section>
-          <div class="text-h6">Участок {{currentArea.id}}</div>
+          <div class="text-h6">Участок {{currentPolygon.id}}</div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          <q-input dense v-model="currentArea.name" label="Наименование"/>
+          <q-input dense v-model="currentPolygon.name" label="Наименование"/>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          <q-input dense v-model="currentArea.description" filled type="text" autogrow label="Описание"/>
+          <q-input dense v-model="currentPolygon.description" filled type="text" autogrow label="Описание"/>
         </q-card-section>
 
         <q-card-actions align="right" class="text-primary">
@@ -78,16 +81,15 @@ export default {
   components: {},
   data () {
     return {
-      areas: [],
       removeDialog: false,
       editDialog: false,
-      currentArea: {},
-      currentAreaId: null
+      currentPolygon: {},
+      currentPolygonId: null
     }
   },
   computed: {
     cemeteryPolygons () {
-      return this.$store.getters.cemeteryAreas.map(stored => {
+      return this.$store.getters.cemeteryPolygons.map(stored => {
         return {
           id: stored.id,
           name: stored.name,
@@ -103,22 +105,22 @@ export default {
       this.currentArea = area
       this.$emit('onSelectAreaFromList', this.currentArea.id)
     },
-    editArea (area) {
-      this.currentArea = area
+    editPolygon (polygon) {
+      this.currentPolygon = polygon
       this.editDialog = true
     },
-    removeArea (id) {
-      this.currentAreaId = id
+    removePolygon (id) {
+      this.currentPolygonId = id
       this.removeDialog = true
     },
     confirmRemoveArea () {
-      this.$store.dispatch('doRemoveCemeteryArea', this.currentAreaId)
-      this.$emit('onRemoveAreaFromList', this.currentAreaId)
-      this.currentAreaId = null
+      this.$store.dispatch('doRemoveCemeteryPolygon', this.currentPolygonId)
+      this.$emit('onRemoveAreaFromList', this.currentPolygonId)
+      this.currentPolygonId = null
       this.removeDialog = false
     },
     confirmEdit () {
-      this.currentAreaId = null
+      this.currentPolygonId = null
       this.editDialog = false
     },
     onAddQuarter () {
