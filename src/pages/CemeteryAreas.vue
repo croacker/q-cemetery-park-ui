@@ -90,7 +90,7 @@ export default {
     },
 
     initAreas () {
-      this.cemeteryPolygons = this.$store.getters.cemeteryPolygons.map(area => {
+      this.cemeteryPolygons = this.$store.getters.cemeteryQuarters.map(area => {
         return {
           id: area.id,
           name: '',
@@ -113,8 +113,8 @@ export default {
       const area = { id: id, name: name, description: '', coord: coord, overlay: overlay }
       this.cemeteryPolygons.push(area)
       const areaStored = { id: id, name: name, description: '', coord: coord }
-      this.$store.commit('addCemeteryPolygon', areaStored)
-      this.$store.commit('currentCemeteryPolygon', areaStored)
+      this.$store.commit('addCemeteryQuarter', areaStored)
+      this.$store.commit('currentCemeteryQuarter', areaStored)
     },
     onSelectAreaFromList (id) {
       this.clearEditable()

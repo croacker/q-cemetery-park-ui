@@ -13,7 +13,7 @@
       </q-toolbar>
       <q-list>
         <q-item v-for="quarter in cemeteryQuarters" :key="quarter.id" class="q-my-xs" clickable v-ripple
-          :active="currentQuarter == polygon"
+          :active="currentQuarter == quarter"
           @click="onSelectQuarter(quarter)">
           <q-item-section>
             <q-item-label multiline>{{ quarter.name }}</q-item-label>
@@ -35,31 +35,31 @@
         </q-item>
       </q-list>
     </div>
-    <q-dialog v-model="removeDialog" persistent>
+    <q-dialog v-model="removeQuarterDialog" persistent>
       <q-card>
         <q-card-section class="row items-center">
           <q-avatar icon="place" color="primary" text-color="white" />
-          <span class="q-ml-sm">Удалить участок?</span>
+          <span class="q-ml-sm">Удалить квартал?</span>
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="ОК" color="primary" @click="confirmRemoveArea" />
+          <q-btn flat label="ОК" color="primary" @click="confirmRemoveQuarter" />
           <q-btn flat label="Отмена" color="primary" v-close-popup />
         </q-card-actions>
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="editDialog" persistent>
+    <q-dialog v-model="editQuarterDialog" persistent>
       <q-card style="min-width: 350px">
         <q-card-section>
-          <div class="text-h6">Участок {{currentPolygon.id}}</div>
+          <div class="text-h6">Квартал {{currentQuarter.id}}</div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          <q-input dense v-model="currentPolygon.name" label="Наименование"/>
+          <q-input dense v-model="currentQuarter.name" label="Наименование"/>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          <q-input dense v-model="currentPolygon.description" filled type="text" autogrow label="Описание"/>
+          <q-input dense v-model="currentQuarter.description" filled type="text" autogrow label="Описание"/>
         </q-card-section>
 
         <q-card-actions align="right" class="text-primary">
@@ -78,8 +78,8 @@ export default {
   components: {},
   data () {
     return {
-      removeDialog: false,
-      editDialog: false,
+      removeQuarterDialog: false,
+      editQuarterDialog: false,
       currentArea: {},
       currentAreaId: null,
       currentBurial: {},
@@ -90,7 +90,7 @@ export default {
   },
   computed: {
     cemeteryQuarters () {
-      return this.$store.getters.cemeteryPolygons.map(stored => {
+      return this.$store.getters.cemeteryQuarters.map(stored => {
         return {
           id: stored.id,
           name: stored.name,
@@ -103,26 +103,26 @@ export default {
   },
   methods: {
     onSelectQuarter (area) {
-      this.currentArea = area
+      this.currentQuarter = area
       this.$emit('onSelectAreaFromList', this.currentArea.id)
     },
-    editQuarter (polygon) {
-      this.currentPolygon = polygon
-      this.editDialog = true
+    editQuarter (quarter) {
+      this.currentQuarter = quarter
+      this.editQuarterDialog = true
     },
     removeQuarter (id) {
-      this.currentPolygonId = id
-      this.removeDialog = true
+      this.currentQuarterId = id
+      this.removeQuarterDialog = true
     },
     confirmRemoveQuarter () {
-      this.$store.dispatch('doRemoveCemeteryPolygon', this.currentPolygonId)
-      this.$emit('onRemoveAreaFromList', this.currentPolygonId)
-      this.currentPolygonId = null
-      this.removeDialog = false
+      this.$store.dispatch('doRemoveCemeteryPolygon', this.currentQuarterId)
+      this.$emit('onRemoveAreaFromList', this.currentQuarterId)
+      this.currentQuarterId = null
+      this.removeQuarterDialog = false
     },
     confirmEdit () {
-      this.currentPolygonId = null
-      this.editDialog = false
+      this.currentQuarterId = null
+      this.editQuarterDialog = false
     },
     onAddQuarter () {
       this.$emit('onAddQuarter', '')
@@ -130,7 +130,7 @@ export default {
     onAddArea (quarterId) {
       this.$emit('onAddArea', '')
     },
-    onAddBurial () {
+    onAddBurial (areaId) {
       this.$emit('onAddBurial', '')
     }
   }
