@@ -104,18 +104,16 @@ export default {
       overlay.setOptions({ fillOpacity: this.getPolygonOpacity() })
 
       const coord = overlay.getPath().getArray().map(el => [el.lat(), el.lng()])
-      let id = Math.max(...this.cemeteryPolygons.map(el => { return el.id }))
-      if (id === -Infinity) {
-        id = 0
-      }
-      id += 1
+      const id = this.getNewPolygonId()
+
       const name = this.getPolygonDefaultName(id)
-      const area = { id: id, name: name, description: '', coord: coord, overlay: overlay }
-      this.cemeteryPolygons.push(area)
-      const areaStored = { id: id, name: name, description: '', coord: coord }
-      this.$store.commit('addCemeteryQuarter', areaStored)
-      this.$store.commit('currentCemeteryQuarter', areaStored)
+      const polygon = { id: id, name: name, description: '', coord: coord, overlay: overlay }
+      this.cemeteryPolygons.push(polygon)
+
+      const polygonStored = { id: id, name: name, description: '', coord: coord }
+      this.addCemeteryPolygon(polygonStored)
     },
+
     onSelectAreaFromList (id) {
       this.clearEditable()
       const area = this.cemeteryPolygons.find(area => { return area.id === id })
@@ -124,6 +122,7 @@ export default {
       const latLng = { lat: area.coord[0][0], lng: area.coord[0][1] }
       this.gmap.setCenter(latLng)
     },
+
     onRemoveAreaFromList (id) {
       const area = this.cemeteryPolygons.find(area => { return area.id === id })
       area.overlay.setMap(null)
@@ -136,17 +135,30 @@ export default {
       this.addPolygonMode = 'quarter'
       this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON)
     },
-    onAddArea () {
+    onAddArea (quarterId) {
       this.clearEditable()
       this.addPolygonMode = 'area'
       this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON)
     },
-    onAddBurial () {
+    onAddBurial (areaId) {
       this.clearEditable()
       this.addPolygonMode = 'burial'
       this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON)
     },
-
+    addCemeteryPolygon (polygon) {
+      if (this.addPolygonMode === 'quarter') {
+        this.$store.commit('addCemeteryQuarter', polygon)
+        this.$store.commit('currentCemeteryQuarter', polygon)
+      } else if (this.addPolygonMode === 'area') {
+        polygon.parentId = this.$store.getters.currentQuarter.id
+        this.$store.commit('addCemeteryArea', polygon)
+        this.$store.commit('currentCemeteryArea', polygon)
+      } else if (this.addPolygonMode === 'burial') {
+        polygon.parentId = this.$store.getters.currentArea.id
+        this.$store.commit('addCemeteryBurial', polygon)
+        this.$store.commit('currentCemeteryBurial', polygon)
+      }
+    },
     getPolygonOpacity () {
       let fillOpacity = 0.1
       if (this.addPolygonMode === 'quarter') {
@@ -169,6 +181,15 @@ export default {
         name = 'Захоронение '
       }
       return name + id
+    },
+
+    getNewPolygonId () {
+      let id = Math.max(...this.cemeteryPolygons.map(el => { return el.id }))
+      if (id === -Infinity) {
+        id = 0
+      }
+      id += 1
+      return id
     }
   }
 }

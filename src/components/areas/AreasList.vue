@@ -2,37 +2,97 @@
   <div>
     <div class="q-pl-xs">
       <q-toolbar class="bg-primary text-white">
-        <q-toolbar-title>Участки</q-toolbar-title>
+        <q-toolbar-title>Элементы плана</q-toolbar-title>
 
         <q-btn flat round dense icon="add" @click="onAddQuarter()">
           <q-tooltip>Добавить квартал</q-tooltip>
         </q-btn>
-        <q-btn flat round dense icon="add_location" @click="onAddBurial()">
-          <q-tooltip>Добавить захоронение</q-tooltip>
-        </q-btn>
       </q-toolbar>
       <q-list>
-        <q-item v-for="quarter in cemeteryQuarters" :key="quarter.id" class="q-my-xs" clickable v-ripple
-          :active="currentQuarter == quarter"
-          @click="onSelectQuarter(quarter)">
-          <q-item-section>
-            <q-item-label multiline>{{ quarter.name }}</q-item-label>
-          </q-item-section>
+        <q-expansion-item v-for="quarter in cemeteryQuarters"
+                          :key="quarter.id" class="q-my-xs" clickable v-ripple
+                          :active="currentQuarter == quarter"
+                          @click="onSelectQuarter(quarter)" expand-separator>
+          <template v-slot:header>
+            <q-item-section avatar>
+              <q-icon name="grid_4x4"/>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label multiline>{{ quarter.name }}</q-item-label>
+            </q-item-section>
 
-          <q-item-section top side>
-            <div class="text-grey-8 q-gutter-xs">
-              <q-btn class="gt-xs" size="12px" flat dense round icon="edit" @click="editQuarter(quarter)">
-                <q-tooltip>Редактировать</q-tooltip>
-              </q-btn>
-              <q-btn class="gt-xs" size="12px" flat dense round color="red" icon="delete" @click="removeQuarter(quarter.id)">
-                <q-tooltip>Удалить</q-tooltip>
-              </q-btn>
-              <q-btn class="gt-xs" size="12px" flat dense round icon="add_box" @click="onAddArea(quarter.id)">
-                <q-tooltip>Добавить участок</q-tooltip>
-              </q-btn>
-            </div>
-          </q-item-section>
-        </q-item>
+            <q-item-section top side>
+              <div class="text-grey-8 q-gutter-xs">
+                <q-btn class="gt-xs" size="12px" flat dense round icon="edit" @click="editQuarter(quarter)">
+                  <q-tooltip>Редактировать</q-tooltip>
+                </q-btn>
+                <q-btn class="gt-xs" size="12px" flat dense round color="red" icon="delete_forever"
+                       @click="removeQuarter(quarter.id)">
+                  <q-tooltip>Удалить</q-tooltip>
+                </q-btn>
+                <q-btn class="gt-xs" size="12px" flat dense round icon="add" @click="onAddArea(quarter)">
+                  <q-tooltip>Добавить участок</q-tooltip>
+                </q-btn>
+              </div>
+            </q-item-section>
+          </template>
+
+          <template v-for="area in cemeteryAreas(quarter.id)">
+            <q-expansion-item :header-inset-level="0.2"
+                              :content-inset-level="0.4"
+                              :key="area.id" class="q-my-xs"
+                              clickable v-ripple
+                              :active="currentArea == area"
+                              @click="onSelectArea(area)" expand-separator>
+              <template v-slot:header>
+                <q-item-section avatar>
+                  <q-icon name="grid_3x3"/>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label multiline>{{ area.name }}</q-item-label>
+                </q-item-section>
+                <q-item-section top side>
+                  <div class="text-grey-8 q-gutter-xs">
+                    <q-btn class="gt-xs" size="12px" flat dense round icon="edit" @click="editArea(area)">
+                      <q-tooltip>Редактировать</q-tooltip>
+                    </q-btn>
+                    <q-btn class="gt-xs" size="12px" flat dense round color="red" icon="delete_forever"
+                           @click="removeArea(area.id)">
+                      <q-tooltip>Удалить</q-tooltip>
+                    </q-btn>
+                    <q-btn class="gt-xs" size="12px" flat dense round icon="add" @click="onAddBurial(area)">
+                      <q-tooltip>Добавить захоронение</q-tooltip>
+                    </q-btn>
+                  </div>
+                </q-item-section>
+              </template>
+              <template v-for="burial in cemeteryBurials(area.id)">
+                <q-item :key="burial.id" class="q-my-xs" clickable v-ripple
+                        :active="currentBurial == burial"
+                        @click="onSelectBurial(burial)">
+                  <q-item-section avatar>
+                    <q-icon name="remember_me"/>
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label multiline>{{ burial.name }}</q-item-label>
+                  </q-item-section>
+
+                  <q-item-section top side>
+                    <div class="text-grey-8 q-gutter-xs">
+                      <q-btn class="gt-xs" size="12px" flat dense round icon="edit" @click="editBurial(burial)">
+                        <q-tooltip>Редактировать</q-tooltip>
+                      </q-btn>
+                      <q-btn class="gt-xs" size="12px" flat dense round color="red" icon="delete_forever" @click="removeBurial(burial.id)">
+                        <q-tooltip>Удалить</q-tooltip>
+                      </q-btn>
+                    </div>
+                  </q-item-section>
+                </q-item>
+              </template>
+            </q-expansion-item>
+          </template>
+
+        </q-expansion-item>
       </q-list>
     </div>
     <q-dialog v-model="removeQuarterDialog" persistent>
@@ -90,11 +150,11 @@ export default {
   },
   computed: {
     cemeteryQuarters () {
-      return this.$store.getters.cemeteryQuarters.map(stored => {
+      return this.$store.getters.cemeteryQuarters.map(quarter => {
         return {
-          id: stored.id,
-          name: stored.name,
-          coord: stored.coord
+          id: quarter.id,
+          name: quarter.name,
+          coord: quarter.coord
         }
       })
     }
@@ -102,9 +162,62 @@ export default {
   mounted () {
   },
   methods: {
-    onSelectQuarter (area) {
-      this.currentQuarter = area
-      this.$emit('onSelectAreaFromList', this.currentArea.id)
+    cemeteryAreas (quarterId) {
+      // return this.$store.getters.cemeteryAreas.filter(area => area.parentId === quarterId).map(area => {
+      //   return {
+      //     id: area.id,
+      //     name: area.name,
+      //     coord: area.coord
+      //   }
+      // })
+      return [
+        {
+          id: quarterId + 10,
+          name: 'Участок ' + quarterId + 10,
+          coord: []
+        },
+        {
+          id: quarterId + 11,
+          name: 'Участок ' + quarterId + 11,
+          coord: []
+        }
+      ]
+    },
+    cemeteryBurials (areaId) {
+      // return this.$store.getters.cemeteryBurials.filter(burial => burial.parentId === areaId).map(burial => {
+      //   return {
+      //     id: burial.id,
+      //     name: burial.name,
+      //     coord: burial.coord
+      //   }
+      // })
+      return [
+        {
+          id: areaId + 100,
+          name: 'Захоронение ' + areaId + 100,
+          coord: []
+        },
+        {
+          id: areaId + 110,
+          name: 'Захоронение ' + areaId + 110,
+          coord: []
+        },
+        {
+          id: areaId + 110,
+          name: 'Захоронение ' + areaId + 120,
+          coord: []
+        },
+        {
+          id: areaId + 110,
+          name: 'Захоронение ' + areaId + 130,
+          coord: []
+        },
+        {
+          id: areaId + 110,
+          name: 'Захоронение ' + areaId + 140,
+          coord: []
+        }
+      ]
     },
     editQuarter (quarter) {
       this.currentQuarter = quarter
@@ -113,6 +226,34 @@ export default {
     removeQuarter (id) {
       this.currentQuarterId = id
       this.removeQuarterDialog = true
+    },
+    onSelectQuarter (quarter) {
+      this.currentQuarter = quarter
+      this.$emit('onSelectAreaFromList', this.currentQuarter.id)
+    },
+    editArea (area) {
+      this.currentArea = area
+      this.editQuarterDialog = true
+    },
+    removeArea (id) {
+      this.currentAreaId = id
+      this.removeQuarterDialog = true
+    },
+    onSelectArea (area) {
+      this.currentArea = area
+      this.$emit('onSelectAreaFromList', this.currentArea.id)
+    },
+    editBurial (burial) {
+      this.currentArea = burial
+      this.editQuarterDialog = true
+    },
+    removeBurial (id) {
+      this.currentBuriald = id
+      this.removeQuarterDialog = true
+    },
+    onSelectBurial (burial) {
+      this.currentBurial = burial
+      this.$emit('onSelectBurialFromList', this.currentBurial.id)
     },
     confirmRemoveQuarter () {
       this.$store.dispatch('doRemoveCemeteryPolygon', this.currentQuarterId)
@@ -127,10 +268,12 @@ export default {
     onAddQuarter () {
       this.$emit('onAddQuarter', '')
     },
-    onAddArea (quarterId) {
-      this.$emit('onAddArea', '')
+    onAddArea (quarter) {
+      this.$store.commit('currentCemeteryQuarter', quarter)
+      this.$emit('onAddArea')
     },
-    onAddBurial (areaId) {
+    onAddBurial (area) {
+      this.$store.commit('currentCemeteryArea', area)
       this.$emit('onAddBurial', '')
     }
   }
