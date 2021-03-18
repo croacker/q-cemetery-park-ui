@@ -101,6 +101,7 @@ export default {
     },
 
     async savePolygon (overlay) {
+      alert(this.addPolygonMode)
       overlay.setOptions({ fillOpacity: this.getPolygonOpacity() })
 
       const coord = overlay.getPath().getArray().map(el => [el.lat(), el.lng()])

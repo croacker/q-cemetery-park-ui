@@ -30,7 +30,7 @@
                        @click="removeQuarter(quarter.id)">
                   <q-tooltip>Удалить</q-tooltip>
                 </q-btn>
-                <q-btn class="gt-xs" size="12px" flat dense round icon="add" @click="onAddArea(quarter)">
+                <q-btn class="gt-xs" size="12px" flat dense round icon="add" @click.capture.stop="onAddArea(quarter)">
                   <q-tooltip>Добавить участок</q-tooltip>
                 </q-btn>
               </div>
@@ -60,7 +60,7 @@
                            @click="removeArea(area.id)">
                       <q-tooltip>Удалить</q-tooltip>
                     </q-btn>
-                    <q-btn class="gt-xs" size="12px" flat dense round icon="add" @click="onAddBurial(area)">
+                    <q-btn class="gt-xs" size="12px" flat dense round icon="add" @click.capture.stop="onAddBurial(area)">
                       <q-tooltip>Добавить захоронение</q-tooltip>
                     </q-btn>
                   </div>
@@ -163,61 +163,22 @@ export default {
   },
   methods: {
     cemeteryAreas (quarterId) {
-      // return this.$store.getters.cemeteryAreas.filter(area => area.parentId === quarterId).map(area => {
-      //   return {
-      //     id: area.id,
-      //     name: area.name,
-      //     coord: area.coord
-      //   }
-      // })
-      return [
-        {
-          id: quarterId + 10,
-          name: 'Участок ' + quarterId + 10,
-          coord: []
-        },
-        {
-          id: quarterId + 11,
-          name: 'Участок ' + quarterId + 11,
-          coord: []
+      return this.$store.getters.cemeteryAreas.filter(area => area.parentId === quarterId).map(area => {
+        return {
+          id: area.id,
+          name: area.name,
+          coord: area.coord
         }
-      ]
+      })
     },
     cemeteryBurials (areaId) {
-      // return this.$store.getters.cemeteryBurials.filter(burial => burial.parentId === areaId).map(burial => {
-      //   return {
-      //     id: burial.id,
-      //     name: burial.name,
-      //     coord: burial.coord
-      //   }
-      // })
-      return [
-        {
-          id: areaId + 100,
-          name: 'Захоронение ' + areaId + 100,
-          coord: []
-        },
-        {
-          id: areaId + 110,
-          name: 'Захоронение ' + areaId + 110,
-          coord: []
-        },
-        {
-          id: areaId + 110,
-          name: 'Захоронение ' + areaId + 120,
-          coord: []
-        },
-        {
-          id: areaId + 110,
-          name: 'Захоронение ' + areaId + 130,
-          coord: []
-        },
-        {
-          id: areaId + 110,
-          name: 'Захоронение ' + areaId + 140,
-          coord: []
+      return this.$store.getters.cemeteryBurials.filter(burial => burial.parentId === areaId).map(burial => {
+        return {
+          id: burial.id,
+          name: burial.name,
+          coord: burial.coord
         }
-      ]
+      })
     },
     editQuarter (quarter) {
       this.currentQuarter = quarter
