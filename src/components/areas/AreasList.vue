@@ -190,7 +190,7 @@ export default {
     },
     onSelectQuarter (quarter) {
       this.currentQuarter = quarter
-      this.$emit('onSelectAreaFromList', this.currentQuarter.id)
+      this.$emit('onSelectItemFromList', this.currentQuarter.id)
     },
     editArea (area) {
       this.currentArea = area
@@ -202,7 +202,7 @@ export default {
     },
     onSelectArea (area) {
       this.currentArea = area
-      this.$emit('onSelectAreaFromList', this.currentArea.id)
+      this.$emit('onSelectItemFromList', this.currentArea.id)
     },
     editBurial (burial) {
       this.currentArea = burial
@@ -214,11 +214,11 @@ export default {
     },
     onSelectBurial (burial) {
       this.currentBurial = burial
-      this.$emit('onSelectBurialFromList', this.currentBurial.id)
+      this.$emit('onSelectItemFromList', this.currentBurial.id)
     },
     confirmRemoveQuarter () {
       this.$store.dispatch('doRemoveCemeteryPolygon', this.currentQuarterId)
-      this.$emit('onRemoveAreaFromList', this.currentQuarterId)
+      this.$emit('onRemoveItemFromList', this.currentQuarterId)
       this.currentQuarterId = null
       this.removeQuarterDialog = false
     },

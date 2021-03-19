@@ -9,8 +9,8 @@
     </div>
     <div class="col-2">
       <areas-list
-        @onRemoveAreaFromList="onRemoveAreaFromList"
-        @onSelectAreaFromList="onSelectAreaFromList"
+        @onRemoveItemFromList="onRemoveItemFromList"
+        @onSelectItemFromList="onSelectItemFromList"
         @onAddQuarter="onAddQuarter"
         @onAddArea="onAddArea"
         @onAddBurial="onAddBurial"/>
@@ -90,7 +90,7 @@ export default {
     },
 
     initAreas () {
-      this.cemeteryPolygons = this.$store.getters.cemeteryQuarters.map(area => {
+      let polygons = this.$store.getters.cemeteryQuarters.map(area => {
         return {
           id: area.id,
           name: '',
@@ -98,6 +98,24 @@ export default {
           coord: area.coord
         }
       })
+      polygons = polygons.concat(this.$store.getters.cemeteryAreas.map(area => {
+        return {
+          id: area.id,
+          name: '',
+          description: '',
+          coord: area.coord
+        }
+      }))
+      polygons = polygons.concat(this.$store.getters.cemeteryBurials.map(area => {
+        return {
+          id: area.id,
+          name: '',
+          description: '',
+          coord: area.coord
+        }
+      }))
+
+      this.cemeteryPolygons = polygons
     },
 
     async savePolygon (overlay) {
@@ -106,16 +124,17 @@ export default {
 
       const coord = overlay.getPath().getArray().map(el => [el.lat(), el.lng()])
       const id = this.getNewPolygonId()
+      const parentId = this.getParentId()
 
       const name = this.getPolygonDefaultName(id)
-      const polygon = { id: id, name: name, description: '', coord: coord, overlay: overlay }
+      const polygon = { id: id, parentId: parentId, name: name, description: '', coord: coord, overlay: overlay }
       this.cemeteryPolygons.push(polygon)
 
-      const polygonStored = { id: id, name: name, description: '', coord: coord }
+      const polygonStored = { id: id, parentId: parentId, name: name, description: '', coord: coord }
       this.addCemeteryPolygon(polygonStored)
     },
 
-    onSelectAreaFromList (id) {
+    onSelectItemFromList (id) {
       this.clearEditable()
       const area = this.cemeteryPolygons.find(area => { return area.id === id })
       area.overlay.setEditable(true)
@@ -124,7 +143,7 @@ export default {
       this.gmap.setCenter(latLng)
     },
 
-    onRemoveAreaFromList (id) {
+    onRemoveItemFromList (id) {
       const area = this.cemeteryPolygons.find(area => { return area.id === id })
       area.overlay.setMap(null)
     },
@@ -151,11 +170,9 @@ export default {
         this.$store.commit('addCemeteryQuarter', polygon)
         this.$store.commit('currentCemeteryQuarter', polygon)
       } else if (this.addPolygonMode === 'area') {
-        polygon.parentId = this.$store.getters.currentQuarter.id
         this.$store.commit('addCemeteryArea', polygon)
         this.$store.commit('currentCemeteryArea', polygon)
       } else if (this.addPolygonMode === 'burial') {
-        polygon.parentId = this.$store.getters.currentArea.id
         this.$store.commit('addCemeteryBurial', polygon)
         this.$store.commit('currentCemeteryBurial', polygon)
       }
@@ -191,6 +208,16 @@ export default {
       }
       id += 1
       return id
+    },
+
+    getParentId () {
+      let parentId = null
+      if (this.addPolygonMode === 'area') {
+        parentId = this.$store.getters.currentCemeteryQuarter.id
+      } else if (this.addPolygonMode === 'burial') {
+        parentId = this.$store.getters.currentCemeteryArea.id
+      }
+      return parentId
     }
   }
 }
