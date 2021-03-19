@@ -12,10 +12,12 @@
         <q-expansion-item v-for="quarter in cemeteryQuarters"
                           :key="quarter.id" class="q-my-xs" clickable v-ripple
                           :active="currentQuarter == quarter"
-                          @click="onSelectQuarter(quarter)" expand-separator>
+                          expand-separator>
           <template v-slot:header>
             <q-item-section avatar>
-              <q-icon name="grid_4x4"/>
+              <q-icon name="grid_4x4" @click.stop="onSelectQuarter(quarter)">
+                <q-tooltip>Найти на карте</q-tooltip>
+              </q-icon>
             </q-item-section>
             <q-item-section>
               <q-item-label multiline>{{ quarter.name }}</q-item-label>
@@ -43,10 +45,12 @@
                               :key="area.id" class="q-my-xs"
                               clickable v-ripple
                               :active="currentArea == area"
-                              @click="onSelectArea(area)" expand-separator>
+                              expand-separator>
               <template v-slot:header>
                 <q-item-section avatar>
-                  <q-icon name="grid_3x3"/>
+                  <q-icon name="grid_3x3" @click.stop="onSelectArea(area)">
+                    <q-tooltip>Найти на карте</q-tooltip>
+                  </q-icon>
                 </q-item-section>
                 <q-item-section>
                   <q-item-label multiline>{{ area.name }}</q-item-label>
@@ -68,10 +72,11 @@
               </template>
               <template v-for="burial in cemeteryBurials(area.id)">
                 <q-item :key="burial.id" class="q-my-xs" clickable v-ripple
-                        :active="currentBurial == burial"
-                        @click="onSelectBurial(burial)">
+                        :active="currentBurial == burial">
                   <q-item-section avatar>
-                    <q-icon name="remember_me"/>
+                    <q-icon name="remember_me" @click.stop="onSelectBurial(burial)">
+                      <q-tooltip>Найти на карте</q-tooltip>
+                    </q-icon>
                   </q-item-section>
                   <q-item-section>
                     <q-item-label multiline>{{ burial.name }}</q-item-label>
@@ -180,6 +185,10 @@ export default {
         }
       })
     },
+
+    onAddQuarter () {
+      this.$emit('onAddQuarter', '')
+    },
     editQuarter (quarter) {
       this.currentQuarter = quarter
       this.editQuarterDialog = true
@@ -191,6 +200,17 @@ export default {
     onSelectQuarter (quarter) {
       this.currentQuarter = quarter
       this.$emit('onSelectItemFromList', this.currentQuarter.id)
+    },
+    confirmRemoveQuarter () {
+      this.$store.dispatch('doRemoveCemeteryQuarter', this.currentQuarterId)
+      this.$emit('onRemoveItemFromList', this.currentQuarterId)
+      this.currentQuarterId = null
+      this.removeQuarterDialog = false
+    },
+
+    onAddArea (quarter) {
+      this.$store.commit('currentCemeteryQuarter', quarter)
+      this.$emit('onAddArea')
     },
     editArea (area) {
       this.currentArea = area
@@ -204,6 +224,11 @@ export default {
       this.currentArea = area
       this.$emit('onSelectItemFromList', this.currentArea.id)
     },
+
+    onAddBurial (area) {
+      this.$store.commit('currentCemeteryArea', area)
+      this.$emit('onAddBurial', '')
+    },
     editBurial (burial) {
       this.currentArea = burial
       this.editQuarterDialog = true
@@ -216,26 +241,10 @@ export default {
       this.currentBurial = burial
       this.$emit('onSelectItemFromList', this.currentBurial.id)
     },
-    confirmRemoveQuarter () {
-      this.$store.dispatch('doRemoveCemeteryPolygon', this.currentQuarterId)
-      this.$emit('onRemoveItemFromList', this.currentQuarterId)
-      this.currentQuarterId = null
-      this.removeQuarterDialog = false
-    },
+
     confirmEdit () {
       this.currentQuarterId = null
       this.editQuarterDialog = false
-    },
-    onAddQuarter () {
-      this.$emit('onAddQuarter', '')
-    },
-    onAddArea (quarter) {
-      this.$store.commit('currentCemeteryQuarter', quarter)
-      this.$emit('onAddArea')
-    },
-    onAddBurial (area) {
-      this.$store.commit('currentCemeteryArea', area)
-      this.$emit('onAddBurial', '')
     }
   }
 }
