@@ -29,7 +29,7 @@
                   <q-tooltip>Редактировать</q-tooltip>
                 </q-btn>
                 <q-btn class="gt-xs" size="12px" flat dense round color="red" icon="delete_forever"
-                       @click="removeQuarter(quarter.id)">
+                       @click="removeItem(quarter.id)">
                   <q-tooltip>Удалить</q-tooltip>
                 </q-btn>
                 <q-btn class="gt-xs" size="12px" flat dense round icon="add" @click.capture.stop="onAddArea(quarter)">
@@ -100,14 +100,14 @@
         </q-expansion-item>
       </q-list>
     </div>
-    <q-dialog v-model="removeQuarterDialog" persistent>
+    <q-dialog v-model="removeItemDialog" persistent>
       <q-card>
         <q-card-section class="row items-center">
           <q-avatar icon="place" color="primary" text-color="white" />
-          <span class="q-ml-sm">Удалить квартал?</span>
+          <span class="q-ml-sm">Удалить {{removeDialogTitle}}?</span>
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="ОК" color="primary" @click="confirmRemoveQuarter" />
+          <q-btn flat label="ОК" color="primary" @click="confirmRemoveItem" />
           <q-btn flat label="Отмена" color="primary" v-close-popup />
         </q-card-actions>
       </q-card>
@@ -143,14 +143,15 @@ export default {
   components: {},
   data () {
     return {
-      removeQuarterDialog: false,
+      removeItemDialog: false,
       editQuarterDialog: false,
+      currentItemId: null,
+      currentMode: null,
       currentArea: {},
       currentAreaId: null,
       currentBurial: {},
       currentBurialId: null,
-      currentQuarter: {},
-      currentQuarterId: null
+      currentQuarter: {}
     }
   },
   computed: {
@@ -162,6 +163,17 @@ export default {
           coord: quarter.coord
         }
       })
+    },
+    removeDialogTitle () {
+      let title = 'Не указано'
+      if (this.currentMode === 'quarter') {
+        title = 'квартал'
+      } else if (this.currentMode === 'area') {
+        title = 'участок'
+      } else if (this.currentMode === 'burial') {
+        title = 'захоронение'
+      }
+      return title
     }
   },
   mounted () {
@@ -193,19 +205,20 @@ export default {
       this.currentQuarter = quarter
       this.editQuarterDialog = true
     },
-    removeQuarter (id) {
-      this.currentQuarterId = id
-      this.removeQuarterDialog = true
+    removeItem (id) {
+      this.currentItemId = id
+      this.currentMode = 'quarter'
+      this.removeItemDialog = true
     },
     onSelectQuarter (quarter) {
       this.currentQuarter = quarter
       this.$emit('onSelectItemFromList', this.currentQuarter.id)
     },
-    confirmRemoveQuarter () {
-      this.$store.dispatch('doRemoveCemeteryQuarter', this.currentQuarterId)
-      this.$emit('onRemoveItemFromList', this.currentQuarterId)
-      this.currentQuarterId = null
-      this.removeQuarterDialog = false
+    confirmRemoveItem () {
+      this.$store.dispatch('doRemoveCemeteryQuarter', this.currentItemId)
+      this.$emit('onRemoveItemFromList', this.currentItemId, this.currentMode)
+      this.currentItemId = null
+      this.removeItemDialog = false
     },
 
     onAddArea (quarter) {
@@ -218,7 +231,8 @@ export default {
     },
     removeArea (id) {
       this.currentAreaId = id
-      this.removeQuarterDialog = true
+      this.currentMode = 'area'
+      this.removeItemDialog = true
     },
     onSelectArea (area) {
       this.currentArea = area
@@ -235,7 +249,8 @@ export default {
     },
     removeBurial (id) {
       this.currentBuriald = id
-      this.removeQuarterDialog = true
+      this.currentMode = 'burial'
+      this.removeItemDialog = true
     },
     onSelectBurial (burial) {
       this.currentBurial = burial

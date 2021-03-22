@@ -90,12 +90,13 @@ export default {
     },
 
     initAreas () {
-      let polygons = this.$store.getters.cemeteryQuarters.map(area => {
+      let polygons = this.$store.getters.cemeteryQuarters.map(quarter => {
         return {
-          id: area.id,
+          id: quarter.id,
           name: '',
           description: '',
-          coord: area.coord
+          type: 'quarter',
+          coord: quarter.coord
         }
       })
       polygons = polygons.concat(this.$store.getters.cemeteryAreas.map(area => {
@@ -103,15 +104,19 @@ export default {
           id: area.id,
           name: '',
           description: '',
+          type: 'area',
+          parentId: area.parentId,
           coord: area.coord
         }
       }))
-      polygons = polygons.concat(this.$store.getters.cemeteryBurials.map(area => {
+      polygons = polygons.concat(this.$store.getters.cemeteryBurials.map(burial => {
         return {
-          id: area.id,
+          id: burial.id,
           name: '',
           description: '',
-          coord: area.coord
+          type: 'burial',
+          parentId: burial.parentId,
+          coord: burial.coord
         }
       }))
 
@@ -142,7 +147,7 @@ export default {
       this.gmap.setCenter(latLng)
     },
 
-    onRemoveItemFromList (id) {
+    onRemoveItemFromList (id, mode) {
       const area = this.cemeteryPolygons.find(area => { return area.id === id })
       area.overlay.setMap(null)
     },
