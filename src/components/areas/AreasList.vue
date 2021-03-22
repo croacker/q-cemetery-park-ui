@@ -29,7 +29,7 @@
                   <q-tooltip>Редактировать</q-tooltip>
                 </q-btn>
                 <q-btn class="gt-xs" size="12px" flat dense round color="red" icon="delete_forever"
-                       @click="removeItem(quarter.id)">
+                       @click="removeItem(quarter.id, 'quarter')">
                   <q-tooltip>Удалить</q-tooltip>
                 </q-btn>
                 <q-btn class="gt-xs" size="12px" flat dense round icon="add" @click.capture.stop="onAddArea(quarter)">
@@ -61,7 +61,7 @@
                       <q-tooltip>Редактировать</q-tooltip>
                     </q-btn>
                     <q-btn class="gt-xs" size="12px" flat dense round color="red" icon="delete_forever"
-                           @click="removeArea(area.id)">
+                           @click="removeItem(area.id, 'area')">
                       <q-tooltip>Удалить</q-tooltip>
                     </q-btn>
                     <q-btn class="gt-xs" size="12px" flat dense round icon="add" @click.capture.stop="onAddBurial(area)">
@@ -87,7 +87,8 @@
                       <q-btn class="gt-xs" size="12px" flat dense round icon="edit" @click="editBurial(burial)">
                         <q-tooltip>Редактировать</q-tooltip>
                       </q-btn>
-                      <q-btn class="gt-xs" size="12px" flat dense round color="red" icon="delete_forever" @click="removeBurial(burial.id)">
+                      <q-btn class="gt-xs" size="12px" flat dense round color="red" icon="delete_forever"
+                             @click="removeItem(burial.id, 'burial')">
                         <q-tooltip>Удалить</q-tooltip>
                       </q-btn>
                     </div>
@@ -128,7 +129,7 @@
         </q-card-section>
 
         <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="ОК" @click="confirmEdit"  />
+          <q-btn flat label="ОК" @click="confirmQuarterEdit"  />
           <q-btn flat label="Отмена" v-close-popup />
         </q-card-actions>
       </q-card>
@@ -205,9 +206,9 @@ export default {
       this.currentQuarter = quarter
       this.editQuarterDialog = true
     },
-    removeItem (id) {
+    removeItem (id, mode) {
       this.currentItemId = id
-      this.currentMode = 'quarter'
+      this.currentMode = mode
       this.removeItemDialog = true
     },
     onSelectQuarter (quarter) {
@@ -215,8 +216,7 @@ export default {
       this.$emit('onSelectItemFromList', this.currentQuarter.id)
     },
     confirmRemoveItem () {
-      this.$store.dispatch('doRemoveCemeteryQuarter', this.currentItemId)
-      this.$emit('onRemoveItemFromList', this.currentItemId, this.currentMode)
+      this.doRemoveItem(this.currentItemId, this.currentMode)
       this.currentItemId = null
       this.removeItemDialog = false
     },
@@ -229,16 +229,10 @@ export default {
       this.currentArea = area
       this.editQuarterDialog = true
     },
-    removeArea (id) {
-      this.currentAreaId = id
-      this.currentMode = 'area'
-      this.removeItemDialog = true
-    },
     onSelectArea (area) {
       this.currentArea = area
       this.$emit('onSelectItemFromList', this.currentArea.id)
     },
-
     onAddBurial (area) {
       this.$store.commit('currentCemeteryArea', area)
       this.$emit('onAddBurial', '')
@@ -247,19 +241,31 @@ export default {
       this.currentArea = burial
       this.editQuarterDialog = true
     },
-    removeBurial (id) {
-      this.currentBuriald = id
-      this.currentMode = 'burial'
-      this.removeItemDialog = true
-    },
     onSelectBurial (burial) {
       this.currentBurial = burial
       this.$emit('onSelectItemFromList', this.currentBurial.id)
     },
 
-    confirmEdit () {
+    confirmQuarterEdit () {
       this.currentQuarterId = null
       this.editQuarterDialog = false
+    },
+
+    doRemoveItem (id, mode) {
+      if (mode === 'quarter') {
+        this.cemeteryAreas(id).forEach(area => {
+          this.doRemoveItem(area.id, 'area')
+        })
+        this.$store.dispatch('doRemoveCemeteryQuarter', id)
+      } else if (mode === 'area') {
+        this.cemeteryBurials(id).forEach(burial => {
+          this.doRemoveItem(burial.id, 'burial')
+        })
+        this.$store.dispatch('doRemoveCemeteryArea', id)
+      } else if (mode === 'burial') {
+        this.$store.dispatch('doRemoveCemeteryBurial', id)
+      }
+      this.$emit('onRemoveItemFromList', id, mode)
     }
   }
 }

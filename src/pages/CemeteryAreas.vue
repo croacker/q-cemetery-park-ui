@@ -37,7 +37,7 @@ export default {
     }
   },
   mounted () {
-    this.initAreas()
+    this.initPolygons()
     this.initMap()
   },
 
@@ -89,7 +89,7 @@ export default {
       this.drawingManager.setMap(this.gmap)
     },
 
-    initAreas () {
+    initPolygons () {
       let polygons = this.$store.getters.cemeteryQuarters.map(quarter => {
         return {
           id: quarter.id,
@@ -99,28 +99,38 @@ export default {
           coord: quarter.coord
         }
       })
-      polygons = polygons.concat(this.$store.getters.cemeteryAreas.map(area => {
-        return {
-          id: area.id,
-          name: '',
-          description: '',
-          type: 'area',
-          parentId: area.parentId,
-          coord: area.coord
-        }
-      }))
-      polygons = polygons.concat(this.$store.getters.cemeteryBurials.map(burial => {
-        return {
-          id: burial.id,
-          name: '',
-          description: '',
-          type: 'burial',
-          parentId: burial.parentId,
-          coord: burial.coord
-        }
-      }))
 
-      this.cemeteryPolygons = polygons
+      polygons = polygons.concat(this.$store.getters.cemeteryAreas.map(area => {
+        let polygon = null
+        if (polygons.findIndex(p => p.id === area.parentId) > -1) {
+          polygon = {
+            id: area.id,
+            name: '',
+            description: '',
+            type: 'area',
+            parentId: area.parentId,
+            coord: area.coord
+          }
+        }
+        return polygon
+      }).filter(p => p != null))
+
+      polygons = polygons.concat(this.$store.getters.cemeteryBurials.map(burial => {
+        let polygon = null
+        if (polygons.findIndex(p => p.id === burial.parentId) > -1) {
+          polygon = {
+            id: burial.id,
+            name: '',
+            description: '',
+            type: 'burial',
+            parentId: burial.parentId,
+            coord: burial.coord
+          }
+        }
+        return polygon
+      }).filter(p => p != null))
+
+      this.cemeteryPolygons = polygons.filter(p => p != null)
     },
 
     async savePolygon (overlay) {

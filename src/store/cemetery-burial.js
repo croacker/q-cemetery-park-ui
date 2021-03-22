@@ -14,8 +14,10 @@ const mutations = {
     state.cemeteryBurials.push(cemeteryBurial)
   },
   removeCemeteryBurial (state, id) {
-    const removeId = state.cemeteryBurials.findIndex(area => area.id === id)
-    state.cemeteryBurials.splice(removeId, 1)
+    const removeId = state.cemeteryBurials.findIndex(burial => burial.id === id)
+    if (removeId !== -1) {
+      state.cemeteryBurials.splice(removeId, 1)
+    }
   },
   updateCemeteryBurial (state, cemeteryBurial) {
     const id = state.cemeteryBurials.find(area => area.id === cemeteryBurial.id)
