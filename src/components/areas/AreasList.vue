@@ -121,7 +121,7 @@
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          <q-input dense v-model="currentQuarter.name" label="Наименование"/>
+          <q-input dense v-model="currentQuarter.name" label="Номер"/>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
@@ -130,6 +130,84 @@
 
         <q-card-actions align="right" class="text-primary">
           <q-btn flat label="ОК" @click="confirmQuarterEdit"  />
+          <q-btn flat label="Отмена" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="editAreaDialog" persistent>
+      <q-card style="min-width: 350px">
+        <q-card-section>
+          <div class="text-h6">Участок {{currentArea.id}}</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-input dense v-model="currentArea.name" label="Номер"/>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-input dense v-model="currentArea.description" filled type="text" autogrow label="Описание"/>
+        </q-card-section>
+
+        <q-card-actions align="right" class="text-primary">
+          <q-btn flat label="ОК" @click="confirmAreaEdit"  />
+          <q-btn flat label="Отмена" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="editBurialDialog" persistent>
+      <q-card style="min-width: 350px">
+        <q-card-section>
+          <div class="text-h6">Захоронение {{currentBurial.id}}</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-input dense v-model="currentBurial.name" label="Номер"/>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-input dense v-model="currentBurial.person" label="Фамилия Имя Отчество"/>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-input filled v-model="currentBurial.birthDate" mask="date" :rules="['date']" label="Дата рождения">
+            <template v-slot:append>
+              <q-icon name="event" class="cursor-pointer">
+                <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
+                  <q-date v-model="currentBurial.birthDate">
+                    <div class="row items-center justify-end">
+                      <q-btn v-close-popup label="Close" color="primary" flat />
+                    </div>
+                  </q-date>
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-input filled v-model="currentBurial.deathDate" mask="date" :rules="['date']" label="Дата смерти">
+            <template v-slot:append>
+              <q-icon name="event" class="cursor-pointer">
+                <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
+                  <q-date v-model="currentBurial.deathDate">
+                    <div class="row items-center justify-end">
+                      <q-btn v-close-popup label="Close" color="primary" flat />
+                    </div>
+                  </q-date>
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-input dense v-model="currentBurial.description" filled type="text" autogrow label="Контакты родственников"/>
+        </q-card-section>
+
+        <q-card-actions align="right" class="text-primary">
+          <q-btn flat label="ОК" @click="confirmBurialEdit"  />
           <q-btn flat label="Отмена" v-close-popup />
         </q-card-actions>
       </q-card>
@@ -146,13 +224,13 @@ export default {
     return {
       removeItemDialog: false,
       editQuarterDialog: false,
+      editAreaDialog: false,
+      editBurialDialog: false,
       currentItemId: null,
       currentMode: null,
+      currentQuarter: {},
       currentArea: {},
-      currentAreaId: null,
-      currentBurial: {},
-      currentBurialId: null,
-      currentQuarter: {}
+      currentBurial: {}
     }
   },
   computed: {
@@ -227,7 +305,7 @@ export default {
     },
     editArea (area) {
       this.currentArea = area
-      this.editQuarterDialog = true
+      this.editAreaDialog = true
     },
     onSelectArea (area) {
       this.currentArea = area
@@ -238,8 +316,8 @@ export default {
       this.$emit('onAddBurial', '')
     },
     editBurial (burial) {
-      this.currentArea = burial
-      this.editQuarterDialog = true
+      this.currentBurial = burial
+      this.editBurialDialog = true
     },
     onSelectBurial (burial) {
       this.currentBurial = burial
@@ -247,8 +325,18 @@ export default {
     },
 
     confirmQuarterEdit () {
-      this.currentQuarterId = null
       this.editQuarterDialog = false
+      this.currentQuarter = null
+    },
+
+    confirmAreaEdit () {
+      this.editAreaDialog = false
+      this.currentArea = null
+    },
+
+    confirmBurialEdit () {
+      this.editBurialDialog = false
+      // this.currentBurial = null
     },
 
     doRemoveItem (id, mode) {

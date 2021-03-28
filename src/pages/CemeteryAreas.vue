@@ -187,6 +187,9 @@ export default {
         this.$store.commit('addCemeteryArea', polygon)
         this.$store.commit('currentCemeteryArea', polygon)
       } else if (this.addPolygonMode === 'burial') {
+        polygon.person = ''
+        polygon.birthDate = '2021/01/01'
+        polygon.deathDate = '2021/01/01'
         this.$store.commit('addCemeteryBurial', polygon)
         this.$store.commit('currentCemeteryBurial', polygon)
       }
@@ -204,15 +207,7 @@ export default {
     },
 
     getPolygonDefaultName (id) {
-      let name = 'Захоронение '
-      if (this.addPolygonMode === 'quarter') {
-        name = 'Квартал '
-      } else if (this.addPolygonMode === 'area') {
-        name = 'Участок '
-      } else if (this.addPolygonMode === 'burial') {
-        name = 'Захоронение '
-      }
-      return name + id
+      return '' + id
     },
 
     getNewPolygonId () {
