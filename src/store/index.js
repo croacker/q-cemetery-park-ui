@@ -4,6 +4,8 @@ import VuexPersistence from 'vuex-persist'
 import VueApexCharts from 'vue-apexcharts'
 
 import cemeteryArea from './cemetery-area'
+import cemeteryBurial from './cemetery-burial'
+import cemeteryQuarter from './cemetery-quarter'
 import user from './user'
 
 Vue.use(Vuex)
@@ -19,6 +21,8 @@ export default function (/* { ssrContext } */) {
   const Store = new Vuex.Store({
     modules: {
       cemeteryArea,
+      cemeteryBurial,
+      cemeteryQuarter,
       user
     },
 

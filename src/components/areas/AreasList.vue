@@ -2,60 +2,147 @@
   <div>
     <div class="q-pl-xs">
       <q-toolbar class="bg-primary text-white">
-        <q-toolbar-title>Участки</q-toolbar-title>
+        <q-toolbar-title>Элементы плана</q-toolbar-title>
 
-        <q-btn flat round dense icon="add_box" @click="onAddQuarter()">
+        <q-btn flat round dense icon="add" @click="onAddQuarter()">
           <q-tooltip>Добавить квартал</q-tooltip>
-        </q-btn>
-        <q-btn flat round dense icon="bookmark_add" @click="onAddArea()">
-          <q-tooltip>Добавить участок</q-tooltip>
-        </q-btn>
-        <q-btn flat round dense icon="add_location" @click="onAddBurial()">
-          <q-tooltip>Добавить захоронение</q-tooltip>
         </q-btn>
       </q-toolbar>
       <q-list>
-        <q-item v-for="area in cemeteryPolygons" :key="area.id" class="q-my-xs" clickable v-ripple
-          :active="currentArea == area"
-          @click="onSelectArea(area)">
-          <q-item-section>
-            <q-item-label multiline>{{ area.name }}</q-item-label>
-          </q-item-section>
+        <q-expansion-item v-for="quarter in cemeteryQuarters"
+                          :key="quarter.id" class="q-my-xs" clickable v-ripple
+                          :active="currentQuarter == quarter"
+                          expand-separator>
+          <template v-slot:header>
+            <q-item-section avatar>
+              <q-icon name="grid_4x4" @click.stop="onSelectQuarter(quarter)">
+                <q-tooltip>Найти на карте</q-tooltip>
+              </q-icon>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label multiline>Квартал {{ quarter.name }}</q-item-label>
+            </q-item-section>
 
-          <q-item-section top side>
-            <div class="text-grey-8 q-gutter-xs">
-              <q-btn class="gt-xs" size="12px" flat dense round icon="edit" @click="editArea(area)">
-                <q-tooltip>Редактировать</q-tooltip>
-              </q-btn>
-              <q-btn class="gt-xs" size="12px" flat dense round color="red" icon="delete" @click="removeArea(area.id)">
-                <q-tooltip>Удалить</q-tooltip>
-              </q-btn>
-            </div>
-          </q-item-section>
-        </q-item>
+            <q-item-section top side>
+              <div class="text-grey-8 q-gutter-xs">
+                <q-btn class="gt-xs" size="12px" flat dense round icon="edit" @click="editQuarter(quarter)">
+                  <q-tooltip>Редактировать</q-tooltip>
+                </q-btn>
+                <q-btn class="gt-xs" size="12px" flat dense round color="red" icon="delete_forever"
+                       @click="removeItem(quarter.id, 'quarter')">
+                  <q-tooltip>Удалить</q-tooltip>
+                </q-btn>
+                <q-btn class="gt-xs" size="12px" flat dense round icon="add" @click.capture.stop="onAddArea(quarter)">
+                  <q-tooltip>Добавить участок</q-tooltip>
+                </q-btn>
+              </div>
+            </q-item-section>
+          </template>
+
+          <template v-for="area in cemeteryAreas(quarter.id)">
+            <q-expansion-item :header-inset-level="0.2"
+                              :content-inset-level="0.4"
+                              :key="area.id" class="q-my-xs"
+                              clickable v-ripple
+                              :active="currentArea == area"
+                              expand-separator>
+              <template v-slot:header>
+                <q-item-section avatar>
+                  <q-icon name="grid_3x3" @click.stop="onSelectArea(area)">
+                    <q-tooltip>Найти на карте</q-tooltip>
+                  </q-icon>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label multiline>Участок {{ area.name }}</q-item-label>
+                </q-item-section>
+                <q-item-section top side>
+                  <div class="text-grey-8 q-gutter-xs">
+                    <q-btn class="gt-xs" size="12px" flat dense round icon="edit" @click="editArea(area)">
+                      <q-tooltip>Редактировать</q-tooltip>
+                    </q-btn>
+                    <q-btn class="gt-xs" size="12px" flat dense round color="red" icon="delete_forever"
+                           @click="removeItem(area.id, 'area')">
+                      <q-tooltip>Удалить</q-tooltip>
+                    </q-btn>
+                    <q-btn class="gt-xs" size="12px" flat dense round icon="add" @click.capture.stop="onAddBurial(area)">
+                      <q-tooltip>Добавить захоронение</q-tooltip>
+                    </q-btn>
+                  </div>
+                </q-item-section>
+              </template>
+              <template v-for="burial in cemeteryBurials(area.id)">
+                <q-item :key="burial.id" class="q-my-xs" clickable v-ripple
+                        :active="currentBurial == burial">
+                  <q-item-section avatar>
+                    <q-icon name="remember_me" @click.stop="onSelectBurial(burial)">
+                      <q-tooltip>Найти на карте</q-tooltip>
+                    </q-icon>
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label multiline>Захоронение {{ burial.name }}</q-item-label>
+                  </q-item-section>
+
+                  <q-item-section top side>
+                    <div class="text-grey-8 q-gutter-xs">
+                      <q-btn class="gt-xs" size="12px" flat dense round icon="edit" @click="editBurial(burial)">
+                        <q-tooltip>Редактировать</q-tooltip>
+                      </q-btn>
+                      <q-btn class="gt-xs" size="12px" flat dense round color="red" icon="delete_forever"
+                             @click="removeItem(burial.id, 'burial')">
+                        <q-tooltip>Удалить</q-tooltip>
+                      </q-btn>
+                    </div>
+                  </q-item-section>
+                </q-item>
+              </template>
+            </q-expansion-item>
+          </template>
+
+        </q-expansion-item>
       </q-list>
     </div>
-    <q-dialog v-model="removeDialog" persistent>
+    <q-dialog v-model="removeItemDialog" persistent>
       <q-card>
         <q-card-section class="row items-center">
           <q-avatar icon="place" color="primary" text-color="white" />
-          <span class="q-ml-sm">Удалить участок?</span>
+          <span class="q-ml-sm">Удалить {{removeDialogTitle}}?</span>
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="ОК" color="primary" @click="confirmRemoveArea" />
+          <q-btn flat label="ОК" color="primary" @click="confirmRemoveItem" />
           <q-btn flat label="Отмена" color="primary" v-close-popup />
         </q-card-actions>
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="editDialog" persistent>
+    <q-dialog v-model="editQuarterDialog" persistent>
+      <q-card style="min-width: 350px">
+        <q-card-section>
+          <div class="text-h6">Квартал {{currentQuarter.id}}</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-input dense v-model="currentQuarter.name" label="Номер"/>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-input dense v-model="currentQuarter.description" filled type="text" autogrow label="Описание"/>
+        </q-card-section>
+
+        <q-card-actions align="right" class="text-primary">
+          <q-btn flat label="ОК" @click="confirmQuarterEdit"  />
+          <q-btn flat label="Отмена" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="editAreaDialog" persistent>
       <q-card style="min-width: 350px">
         <q-card-section>
           <div class="text-h6">Участок {{currentArea.id}}</div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          <q-input dense v-model="currentArea.name" label="Наименование"/>
+          <q-input dense v-model="currentArea.name" label="Номер"/>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
@@ -63,7 +150,64 @@
         </q-card-section>
 
         <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="ОК" @click="confirmEdit"  />
+          <q-btn flat label="ОК" @click="confirmAreaEdit"  />
+          <q-btn flat label="Отмена" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="editBurialDialog" persistent>
+      <q-card style="min-width: 350px">
+        <q-card-section>
+          <div class="text-h6">Захоронение {{currentBurial.id}}</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-input dense v-model="currentBurial.name" label="Номер"/>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-input dense v-model="currentBurial.person" label="Фамилия Имя Отчество"/>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-input filled v-model="currentBurial.birthDate" mask="date" :rules="['date']" label="Дата рождения">
+            <template v-slot:append>
+              <q-icon name="event" class="cursor-pointer">
+                <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
+                  <q-date v-model="currentBurial.birthDate">
+                    <div class="row items-center justify-end">
+                      <q-btn v-close-popup label="Close" color="primary" flat />
+                    </div>
+                  </q-date>
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-input filled v-model="currentBurial.deathDate" mask="date" :rules="['date']" label="Дата смерти">
+            <template v-slot:append>
+              <q-icon name="event" class="cursor-pointer">
+                <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
+                  <q-date v-model="currentBurial.deathDate">
+                    <div class="row items-center justify-end">
+                      <q-btn v-close-popup label="Close" color="primary" flat />
+                    </div>
+                  </q-date>
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-input dense v-model="currentBurial.description" filled type="text" autogrow label="Контакты родственников"/>
+        </q-card-section>
+
+        <q-card-actions align="right" class="text-primary">
+          <q-btn flat label="ОК" @click="confirmBurialEdit"  />
           <q-btn flat label="Отмена" v-close-popup />
         </q-card-actions>
       </q-card>
@@ -78,57 +222,138 @@ export default {
   components: {},
   data () {
     return {
-      areas: [],
-      removeDialog: false,
-      editDialog: false,
+      removeItemDialog: false,
+      editQuarterDialog: false,
+      editAreaDialog: false,
+      editBurialDialog: false,
+      currentItemId: null,
+      currentMode: null,
+      currentQuarter: {},
       currentArea: {},
-      currentAreaId: null
+      currentBurial: {}
     }
   },
   computed: {
-    cemeteryPolygons () {
-      return this.$store.getters.cemeteryAreas.map(stored => {
+    cemeteryQuarters () {
+      return this.$store.getters.cemeteryQuarters.map(quarter => {
         return {
-          id: stored.id,
-          name: stored.name,
-          coord: stored.coord
+          id: quarter.id,
+          name: quarter.name,
+          coord: quarter.coord
         }
       })
+    },
+    removeDialogTitle () {
+      let title = 'Не указано'
+      if (this.currentMode === 'quarter') {
+        title = 'квартал'
+      } else if (this.currentMode === 'area') {
+        title = 'участок'
+      } else if (this.currentMode === 'burial') {
+        title = 'захоронение'
+      }
+      return title
     }
   },
   mounted () {
   },
   methods: {
-    onSelectArea (area) {
-      this.currentArea = area
-      this.$emit('onSelectAreaFromList', this.currentArea.id)
+    cemeteryAreas (quarterId) {
+      return this.$store.getters.cemeteryAreas.filter(area => area.parentId === quarterId).map(area => {
+        return {
+          id: area.id,
+          name: area.name,
+          coord: area.coord
+        }
+      })
     },
-    editArea (area) {
-      this.currentArea = area
-      this.editDialog = true
+    cemeteryBurials (areaId) {
+      return this.$store.getters.cemeteryBurials.filter(burial => burial.parentId === areaId).map(burial => {
+        return {
+          id: burial.id,
+          name: burial.name,
+          coord: burial.coord
+        }
+      })
     },
-    removeArea (id) {
-      this.currentAreaId = id
-      this.removeDialog = true
-    },
-    confirmRemoveArea () {
-      this.$store.dispatch('doRemoveCemeteryArea', this.currentAreaId)
-      this.$emit('onRemoveAreaFromList', this.currentAreaId)
-      this.currentAreaId = null
-      this.removeDialog = false
-    },
-    confirmEdit () {
-      this.currentAreaId = null
-      this.editDialog = false
-    },
+
     onAddQuarter () {
       this.$emit('onAddQuarter', '')
     },
-    onAddArea () {
-      this.$emit('onAddArea', '')
+    editQuarter (quarter) {
+      this.currentQuarter = quarter
+      this.editQuarterDialog = true
     },
-    onAddBurial () {
+    removeItem (id, mode) {
+      this.currentItemId = id
+      this.currentMode = mode
+      this.removeItemDialog = true
+    },
+    onSelectQuarter (quarter) {
+      this.currentQuarter = quarter
+      this.$emit('onSelectItemFromList', this.currentQuarter.id)
+    },
+    confirmRemoveItem () {
+      this.doRemoveItem(this.currentItemId, this.currentMode)
+      this.currentItemId = null
+      this.removeItemDialog = false
+    },
+
+    onAddArea (quarter) {
+      this.$store.commit('currentCemeteryQuarter', quarter)
+      this.$emit('onAddArea')
+    },
+    editArea (area) {
+      this.currentArea = area
+      this.editAreaDialog = true
+    },
+    onSelectArea (area) {
+      this.currentArea = area
+      this.$emit('onSelectItemFromList', this.currentArea.id)
+    },
+    onAddBurial (area) {
+      this.$store.commit('currentCemeteryArea', area)
       this.$emit('onAddBurial', '')
+    },
+    editBurial (burial) {
+      this.currentBurial = burial
+      this.editBurialDialog = true
+    },
+    onSelectBurial (burial) {
+      this.currentBurial = burial
+      this.$emit('onSelectItemFromList', this.currentBurial.id)
+    },
+
+    confirmQuarterEdit () {
+      this.editQuarterDialog = false
+      this.currentQuarter = null
+    },
+
+    confirmAreaEdit () {
+      this.editAreaDialog = false
+      this.currentArea = null
+    },
+
+    confirmBurialEdit () {
+      this.editBurialDialog = false
+      // this.currentBurial = null
+    },
+
+    doRemoveItem (id, mode) {
+      if (mode === 'quarter') {
+        this.cemeteryAreas(id).forEach(area => {
+          this.doRemoveItem(area.id, 'area')
+        })
+        this.$store.dispatch('doRemoveCemeteryQuarter', id)
+      } else if (mode === 'area') {
+        this.cemeteryBurials(id).forEach(burial => {
+          this.doRemoveItem(burial.id, 'burial')
+        })
+        this.$store.dispatch('doRemoveCemeteryArea', id)
+      } else if (mode === 'burial') {
+        this.$store.dispatch('doRemoveCemeteryBurial', id)
+      }
+      this.$emit('onRemoveItemFromList', id, mode)
     }
   }
 }

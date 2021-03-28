@@ -9,8 +9,8 @@
     </div>
     <div class="col-2">
       <areas-list
-        @onRemoveAreaFromList="onRemoveAreaFromList"
-        @onSelectAreaFromList="onSelectAreaFromList"
+        @onRemoveItemFromList="onRemoveItemFromList"
+        @onSelectItemFromList="onSelectItemFromList"
         @onAddQuarter="onAddQuarter"
         @onAddArea="onAddArea"
         @onAddBurial="onAddBurial"/>
@@ -30,14 +30,14 @@ export default {
   },
   data () {
     return {
-      areas: [],
+      cemeteryPolygons: [],
       gmap: null,
       drawingManager: null,
       addPolygonMode: null // Режим добавления quarter, area, burial
     }
   },
   mounted () {
-    this.initAreas()
+    this.initPolygons()
     this.initMap()
   },
 
@@ -52,7 +52,7 @@ export default {
         zoom: 22
       })
 
-      this.areas.forEach(area => {
+      this.cemeteryPolygons.forEach(area => {
         const areaPolygon = new google.maps.Polygon({
           paths: area.coord.map(item => { return { lat: item[0], lng: item[1] } })
         })
@@ -76,8 +76,8 @@ export default {
         }
       })
 
-      const cemeteryAreas = this.$store.getters.cemeteryAreas
-      console.log(cemeteryAreas)
+      const cemeteryPolygons = this.$store.getters.cemeteryPolygons
+      console.log(cemeteryPolygons)
 
       google.maps.event.addListener(this.drawingManager, 'overlaycomplete', function (e) {
         google.maps.event.addListener(e.overlay, 'click', function (event) {
@@ -89,64 +89,111 @@ export default {
       this.drawingManager.setMap(this.gmap)
     },
 
-    initAreas () {
-      this.areas = this.$store.getters.cemeteryAreas.map(area => {
+    initPolygons () {
+      let polygons = this.$store.getters.cemeteryQuarters.map(quarter => {
         return {
-          id: area.id,
+          id: quarter.id,
           name: '',
           description: '',
-          coord: area.coord
+          type: 'quarter',
+          coord: quarter.coord
         }
       })
+
+      polygons = polygons.concat(this.$store.getters.cemeteryAreas.map(area => {
+        let polygon = null
+        if (polygons.findIndex(p => p.id === area.parentId) > -1) {
+          polygon = {
+            id: area.id,
+            name: '',
+            description: '',
+            type: 'area',
+            parentId: area.parentId,
+            coord: area.coord
+          }
+        }
+        return polygon
+      }).filter(p => p != null))
+
+      polygons = polygons.concat(this.$store.getters.cemeteryBurials.map(burial => {
+        let polygon = null
+        if (polygons.findIndex(p => p.id === burial.parentId) > -1) {
+          polygon = {
+            id: burial.id,
+            name: '',
+            description: '',
+            type: 'burial',
+            parentId: burial.parentId,
+            coord: burial.coord
+          }
+        }
+        return polygon
+      }).filter(p => p != null))
+
+      this.cemeteryPolygons = polygons.filter(p => p != null)
     },
 
     async savePolygon (overlay) {
       overlay.setOptions({ fillOpacity: this.getPolygonOpacity() })
 
       const coord = overlay.getPath().getArray().map(el => [el.lat(), el.lng()])
-      let id = Math.max(...this.areas.map(el => { return el.id }))
-      if (id === -Infinity) {
-        id = 0
-      }
-      id += 1
+      const id = this.getNewPolygonId()
+      const parentId = this.getParentId()
+
       const name = this.getPolygonDefaultName(id)
-      const area = { id: id, name: name, description: '', coord: coord, overlay: overlay }
-      this.areas.push(area)
-      const areaStored = { id: id, name: name, description: '', coord: coord }
-      this.$store.commit('addCemeteryArea', areaStored)
-      this.$store.commit('currentCemeteryArea', areaStored)
+      const polygon = { id: id, parentId: parentId, name: name, description: '', coord: coord, overlay: overlay }
+      this.cemeteryPolygons.push(polygon)
+
+      const polygonStored = { id: id, parentId: parentId, name: name, description: '', coord: coord }
+      this.addCemeteryPolygon(polygonStored)
     },
-    onSelectAreaFromList (id) {
+
+    onSelectItemFromList (id) {
       this.clearEditable()
-      const area = this.areas.find(area => { return area.id === id })
+      const area = this.cemeteryPolygons.find(area => { return area.id === id })
       area.overlay.setEditable(true)
       this.drawingManager.setDrawingMode(null)
       const latLng = { lat: area.coord[0][0], lng: area.coord[0][1] }
       this.gmap.setCenter(latLng)
     },
-    onRemoveAreaFromList (id) {
-      const area = this.areas.find(area => { return area.id === id })
+
+    onRemoveItemFromList (id, mode) {
+      const area = this.cemeteryPolygons.find(area => { return area.id === id })
       area.overlay.setMap(null)
     },
     clearEditable () {
-      this.areas.forEach(area => { area.overlay.setEditable(false) })
+      this.cemeteryPolygons.forEach(polygon => { polygon.overlay.setEditable(false) })
     },
     onAddQuarter () {
       this.clearEditable()
       this.addPolygonMode = 'quarter'
       this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON)
     },
-    onAddArea () {
+    onAddArea (quarterId) {
       this.clearEditable()
       this.addPolygonMode = 'area'
       this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON)
     },
-    onAddBurial () {
+    onAddBurial (areaId) {
       this.clearEditable()
       this.addPolygonMode = 'burial'
       this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON)
     },
-
+    addCemeteryPolygon (polygon) {
+      if (this.addPolygonMode === 'quarter') {
+        this.$store.commit('addCemeteryQuarter', polygon)
+        this.$store.commit('currentCemeteryQuarter', polygon)
+      } else if (this.addPolygonMode === 'area') {
+        this.$store.commit('addCemeteryArea', polygon)
+        this.$store.commit('currentCemeteryArea', polygon)
+      } else if (this.addPolygonMode === 'burial') {
+        polygon.person = ''
+        polygon.birthDate = '2021/01/01'
+        polygon.deathDate = '2021/01/01'
+        this.$store.commit('addCemeteryBurial', polygon)
+        this.$store.commit('currentCemeteryBurial', polygon)
+      }
+    },
     getPolygonOpacity () {
       let fillOpacity = 0.1
       if (this.addPolygonMode === 'quarter') {
@@ -160,15 +207,26 @@ export default {
     },
 
     getPolygonDefaultName (id) {
-      let name = 'Захоронение '
-      if (this.addPolygonMode === 'quarter') {
-        name = 'Квартал '
-      } else if (this.addPolygonMode === 'area') {
-        name = 'Участок '
-      } else if (this.addPolygonMode === 'burial') {
-        name = 'Захоронение '
+      return '' + id
+    },
+
+    getNewPolygonId () {
+      let id = Math.max(...this.cemeteryPolygons.map(el => { return el.id }))
+      if (id === -Infinity) {
+        id = 0
       }
-      return name + id
+      id += 1
+      return id
+    },
+
+    getParentId () {
+      let parentId = null
+      if (this.addPolygonMode === 'area') {
+        parentId = this.$store.getters.currentCemeteryQuarter.id
+      } else if (this.addPolygonMode === 'burial') {
+        parentId = this.$store.getters.currentCemeteryArea.id
+      }
+      return parentId
     }
   }
 }
