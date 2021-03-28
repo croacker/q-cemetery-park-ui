@@ -20,7 +20,7 @@
               </q-icon>
             </q-item-section>
             <q-item-section>
-              <q-item-label multiline>{{ quarter.name }}</q-item-label>
+              <q-item-label multiline>Квартал {{ quarter.name }}</q-item-label>
             </q-item-section>
 
             <q-item-section top side>
@@ -53,7 +53,7 @@
                   </q-icon>
                 </q-item-section>
                 <q-item-section>
-                  <q-item-label multiline>{{ area.name }}</q-item-label>
+                  <q-item-label multiline>Участок {{ area.name }}</q-item-label>
                 </q-item-section>
                 <q-item-section top side>
                   <div class="text-grey-8 q-gutter-xs">
@@ -79,7 +79,7 @@
                     </q-icon>
                   </q-item-section>
                   <q-item-section>
-                    <q-item-label multiline>{{ burial.name }}</q-item-label>
+                    <q-item-label multiline>Захоронение {{ burial.name }}</q-item-label>
                   </q-item-section>
 
                   <q-item-section top side>
