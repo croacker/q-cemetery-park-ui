@@ -14,7 +14,7 @@
                           :active="currentQuarter == quarter"
                           expand-separator>
           <template v-slot:header>
-            <q-item-section avatar>
+            <q-item-section class="q-pa-none q-pr-xs q-item-section-areas-avatar" avatar>
               <q-icon name="grid_4x4" @click.stop="onSelectQuarter(quarter)">
                 <q-tooltip>Найти на карте</q-tooltip>
               </q-icon>
@@ -47,7 +47,7 @@
                               :active="currentArea == area"
                               expand-separator>
               <template v-slot:header>
-                <q-item-section avatar>
+                <q-item-section class="q-pa-none q-pr-xs q-item-section-areas-avatar" avatar>
                   <q-icon name="grid_3x3" @click.stop="onSelectArea(area)">
                     <q-tooltip>Найти на карте</q-tooltip>
                   </q-icon>
@@ -73,7 +73,7 @@
               <template v-for="burial in cemeteryBurials(area.id)">
                 <q-item :key="burial.id" class="q-my-xs" clickable v-ripple
                         :active="currentBurial == burial">
-                  <q-item-section avatar>
+                  <q-item-section class="q-pa-none q-pr-xs q-item-section-areas-avatar" avatar>
                     <q-icon name="remember_me" @click.stop="onSelectBurial(burial)">
                       <q-tooltip>Найти на карте</q-tooltip>
                     </q-icon>
@@ -171,13 +171,13 @@
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          <q-input filled v-model="currentBurial.birthDate" mask="date" :rules="['date']" label="Дата рождения">
+          <q-input filled v-model="currentBurial.birthDate" mask="##/##/####" :rules="[checkDate]" label="Дата рождения">
             <template v-slot:append>
               <q-icon name="event" class="cursor-pointer">
                 <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
-                  <q-date v-model="currentBurial.birthDate">
+                  <q-date v-model="currentBurial.birthDate" mask="DD/MM/YYYY">
                     <div class="row items-center justify-end">
-                      <q-btn v-close-popup label="Close" color="primary" flat />
+                      <q-btn v-close-popup label="Ок" color="primary" flat />
                     </div>
                   </q-date>
                 </q-popup-proxy>
@@ -187,13 +187,13 @@
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          <q-input filled v-model="currentBurial.deathDate" mask="date" :rules="['date']" label="Дата смерти">
+          <q-input filled v-model="currentBurial.deathDate" mask="##/##/####" :rules="[checkDate]" label="Дата смерти">
             <template v-slot:append>
               <q-icon name="event" class="cursor-pointer">
                 <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
-                  <q-date v-model="currentBurial.deathDate">
+                  <q-date v-model="currentBurial.deathDate" mask="DD/MM/YYYY">
                     <div class="row items-center justify-end">
-                      <q-btn v-close-popup label="Close" color="primary" flat />
+                      <q-btn v-close-popup label="Ок" color="primary" flat />
                     </div>
                   </q-date>
                 </q-popup-proxy>
@@ -239,7 +239,8 @@ export default {
         return {
           id: quarter.id,
           name: quarter.name,
-          coord: quarter.coord
+          coord: quarter.coord,
+          description: quarter.description
         }
       })
     },
@@ -263,7 +264,8 @@ export default {
         return {
           id: area.id,
           name: area.name,
-          coord: area.coord
+          coord: area.coord,
+          description: area.description
         }
       })
     },
@@ -272,7 +274,11 @@ export default {
         return {
           id: burial.id,
           name: burial.name,
-          coord: burial.coord
+          coord: burial.coord,
+          person: burial.person,
+          birthDate: burial.birthDate,
+          deathDate: burial.deathDate,
+          description: burial.description
         }
       })
     },
@@ -336,7 +342,8 @@ export default {
 
     confirmBurialEdit () {
       this.editBurialDialog = false
-      // this.currentBurial = null
+      console.log(this.currentBurial)
+      this.$store.dispatch('doUpdateCemeteryBurial', this.currentBurial)
     },
 
     doRemoveItem (id, mode) {
@@ -354,6 +361,10 @@ export default {
         this.$store.dispatch('doRemoveCemeteryBurial', id)
       }
       this.$emit('onRemoveItemFromList', id, mode)
+    },
+
+    checkDate (val) {
+      return true
     }
   }
 }
@@ -361,5 +372,7 @@ export default {
 </script>
 
 <style>
-
+.q-item-section-areas-avatar{
+  min-width: 0px;
+}
 </style>

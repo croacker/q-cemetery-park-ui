@@ -20,8 +20,8 @@ const mutations = {
     }
   },
   updateCemeteryQuarter (state, cemeteryQuarter) {
-    const id = state.cemeteryQuarters.find(area => area.id === cemeteryQuarter.id)
-    state.cemeteryQuarters[id] = cemeteryQuarter
+    const idx = state.cemeteryQuarters.findIndex(area => area.id === cemeteryQuarter.id)
+    state.cemeteryQuarters[idx] = cemeteryQuarter
   }
 }
 
