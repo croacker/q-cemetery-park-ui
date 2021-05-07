@@ -137,6 +137,14 @@ export default {
       overlay.setOptions({ fillOpacity: this.getPolygonOpacity() })
 
       const coord = overlay.getPath().getArray().map(el => [el.lat(), el.lng()])
+      const dis1 = this.getDistance(coord[0][0], coord[0][1], coord[1][0], coord[1][1])
+      console.info(dis1)
+      const dis2 = this.getDistance(coord[1][0], coord[1][1], coord[2][0], coord[2][1])
+      console.info(dis2)
+      const dis3 = this.getDistance(coord[2][0], coord[2][1], coord[3][0], coord[3][1])
+      console.info(dis3)
+      const dis4 = this.getDistance(coord[3][0], coord[3][1], coord[0][0], coord[0][1])
+      console.info(dis4)
       const id = this.getNewPolygonId()
       const parentId = this.getParentId()
 
@@ -227,6 +235,18 @@ export default {
         parentId = this.$store.getters.currentCemeteryArea.id
       }
       return parentId
+    },
+    rad (x) {
+      return x * Math.PI / 180
+    },
+    getDistance (p1la, p1lo, p2la, p2lo) {
+      var R = 6378137
+      var dLat = this.rad(p2la - p1la)
+      var dLong = this.rad(p2lo - p1lo)
+      var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(this.rad(p1la)) * Math.cos(this.rad(p2la)) * Math.sin(dLong / 2) * Math.sin(dLong / 2)
+      var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+      var d = R * c
+      return d
     }
   }
 }
