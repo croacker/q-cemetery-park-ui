@@ -101,7 +101,7 @@
         </q-expansion-item>
       </q-list>
     </div>
-    <q-dialog v-model="removeItemDialog" persistent>
+    <q-dialog v-model="removeItemDialog" persistent @keydown.esc="onEsc">
       <q-card>
         <q-card-section class="row items-center">
           <q-avatar icon="place" color="primary" text-color="white" />
@@ -114,7 +114,7 @@
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="editQuarterDialog" persistent>
+    <q-dialog v-model="editQuarterDialog" persistent @keydown.esc="onEsc">
       <q-card style="min-width: 350px">
         <q-card-section>
           <div class="text-h6">Квартал {{currentQuarter.id}}</div>
@@ -135,7 +135,7 @@
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="editAreaDialog" persistent>
+    <q-dialog v-model="editAreaDialog" persistent @keydown.esc="onEsc">
       <q-card style="min-width: 350px">
         <q-card-section>
           <div class="text-h6">Участок {{currentArea.id}}</div>
@@ -156,7 +156,7 @@
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="editBurialDialog" persistent>
+    <q-dialog v-model="editBurialDialog" persistent @keydown.esc="onEsc">
       <q-card style="min-width: 350px">
         <q-card-section>
           <div class="text-h6">Захоронение {{currentBurial.id}}</div>
@@ -331,19 +331,21 @@ export default {
     },
 
     confirmQuarterEdit () {
+      this.$store.dispatch('doUpdateCemeteryQuarter', this.currentQuarter)
       this.editQuarterDialog = false
       this.currentQuarter = null
     },
 
     confirmAreaEdit () {
+      this.$store.dispatch('doUpdateCemeteryArea', this.currentArea)
       this.editAreaDialog = false
       this.currentArea = null
     },
 
     confirmBurialEdit () {
-      this.editBurialDialog = false
-      console.log(this.currentBurial)
       this.$store.dispatch('doUpdateCemeteryBurial', this.currentBurial)
+      this.editBurialDialog = false
+      this.currentBurial = null
     },
 
     doRemoveItem (id, mode) {
@@ -365,6 +367,13 @@ export default {
 
     checkDate (val) {
       return true
+    },
+
+    onEsc () {
+      this.removeItemDialog = false
+      this.editAreaDialog = false
+      this.editQuarterDialog = false
+      this.editBurialDialog = false
     }
   }
 }

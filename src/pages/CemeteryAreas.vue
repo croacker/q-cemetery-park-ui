@@ -5,6 +5,7 @@
         id="gmapAreas"
         ref="gmapAreas"
         style="width: 100%; height: 800px"
+        @keydown.esc="onEsc"
       ></div>
     </div>
     <div class="col-2">
@@ -33,6 +34,7 @@ export default {
       cemeteryPolygons: [],
       gmap: null,
       drawingManager: null,
+      applyPolygon: true, // Используется при отмене режима рисования
       addPolygonMode: null // Режим добавления quarter, area, burial
     }
   },
@@ -56,6 +58,7 @@ export default {
         const areaPolygon = new google.maps.Polygon({
           paths: area.coord.map(item => { return { lat: item[0], lng: item[1] } })
         })
+        areaPolygon.setOptions({ fillOpacity: this.getPolygonOpacity(area.type) })
         area.overlay = areaPolygon
         areaPolygon.setMap(panel.gmap)
 
@@ -80,11 +83,15 @@ export default {
       console.log(cemeteryPolygons)
 
       google.maps.event.addListener(this.drawingManager, 'overlaycomplete', function (e) {
-        google.maps.event.addListener(e.overlay, 'click', function (event) {
-          panel.clearEditable()
-          e.overlay.setEditable(true)
-        })
-        panel.savePolygon(e.overlay)
+        if (panel.applyPolygon) {
+          google.maps.event.addListener(e.overlay, 'click', function (event) {
+            panel.clearEditable()
+            e.overlay.setEditable(true)
+          })
+          panel.savePolygon(e.overlay)
+        } else {
+          e.overlay.setMap(null)
+        }
       })
       this.drawingManager.setMap(this.gmap)
     },
@@ -134,17 +141,17 @@ export default {
     },
 
     async savePolygon (overlay) {
-      overlay.setOptions({ fillOpacity: this.getPolygonOpacity() })
+      overlay.setOptions({ fillOpacity: this.getPolygonOpacity(this.addPolygonMode) })
 
       const coord = overlay.getPath().getArray().map(el => [el.lat(), el.lng()])
-      const dis1 = this.getDistance(coord[0][0], coord[0][1], coord[1][0], coord[1][1])
-      console.info(dis1)
-      const dis2 = this.getDistance(coord[1][0], coord[1][1], coord[2][0], coord[2][1])
-      console.info(dis2)
-      const dis3 = this.getDistance(coord[2][0], coord[2][1], coord[3][0], coord[3][1])
-      console.info(dis3)
-      const dis4 = this.getDistance(coord[3][0], coord[3][1], coord[0][0], coord[0][1])
-      console.info(dis4)
+      // const dis1 = this.getDistance(coord[0][0], coord[0][1], coord[1][0], coord[1][1])
+      // console.info(dis1)
+      // const dis2 = this.getDistance(coord[1][0], coord[1][1], coord[2][0], coord[2][1])
+      // console.info(dis2)
+      // const dis3 = this.getDistance(coord[2][0], coord[2][1], coord[3][0], coord[3][1])
+      // console.info(dis3)
+      // const dis4 = this.getDistance(coord[3][0], coord[3][1], coord[0][0], coord[0][1])
+      // console.info(dis4)
       const id = this.getNewPolygonId()
       const parentId = this.getParentId()
 
@@ -169,6 +176,7 @@ export default {
       const area = this.cemeteryPolygons.find(area => { return area.id === id })
       area.overlay.setMap(null)
     },
+
     clearEditable () {
       this.cemeteryPolygons.forEach(polygon => { polygon.overlay.setEditable(false) })
     },
@@ -176,16 +184,19 @@ export default {
       this.clearEditable()
       this.addPolygonMode = 'quarter'
       this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON)
+      this.showNotif()
     },
     onAddArea (quarterId) {
       this.clearEditable()
       this.addPolygonMode = 'area'
       this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON)
+      this.showNotif()
     },
     onAddBurial (areaId) {
       this.clearEditable()
       this.addPolygonMode = 'burial'
       this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON)
+      this.showNotif()
     },
     addCemeteryPolygon (polygon) {
       if (this.addPolygonMode === 'quarter') {
@@ -202,13 +213,13 @@ export default {
         this.$store.commit('currentCemeteryBurial', polygon)
       }
     },
-    getPolygonOpacity () {
+    getPolygonOpacity (type) {
       let fillOpacity = 0.1
-      if (this.addPolygonMode === 'quarter') {
+      if (type === 'quarter') {
         fillOpacity = 0.1
-      } else if (this.addPolygonMode === 'area') {
+      } else if (type === 'area') {
         fillOpacity = 0.35
-      } else if (this.addPolygonMode === 'burial') {
+      } else if (type === 'burial') {
         fillOpacity = 0.55
       }
       return fillOpacity
@@ -247,6 +258,30 @@ export default {
       var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
       var d = R * c
       return d
+    },
+    onEsc () {
+      if (this.drawingManager.getDrawingMode()) {
+        this.applyPolygon = false
+        this.drawingManager.setDrawingMode(null)
+        this.drawingManager.setMap(null)
+
+        setTimeout(() => {
+          this.drawingManager.setMap(this.gmap)
+          this.applyPolygon = true
+        }, 0)
+      }
+    },
+
+    showNotif () {
+      this.$q.notify({
+        message: 'Режим редактирования карты. Для отмены нажмите ESC',
+        color: 'primary',
+        multiLine: true,
+        icon: 'announcement',
+        actions: [
+          { label: 'ОК', color: 'orange', handler: () => { } }
+        ]
+      })
     }
   }
 }
