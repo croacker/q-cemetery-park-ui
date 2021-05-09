@@ -207,8 +207,8 @@ export default {
         this.$store.commit('currentCemeteryArea', polygon)
       } else if (this.addPolygonMode === 'burial') {
         polygon.person = ''
-        polygon.birthDate = '2021/01/01'
-        polygon.deathDate = '2021/01/01'
+        polygon.birthDate = '01/01/2021'
+        polygon.deathDate = '01/01/2021'
         this.$store.commit('addCemeteryBurial', polygon)
         this.$store.commit('currentCemeteryBurial', polygon)
       }

@@ -264,6 +264,7 @@ export default {
         return {
           id: area.id,
           name: area.name,
+          parentId: area.parentId,
           coord: area.coord,
           description: area.description
         }
@@ -274,6 +275,7 @@ export default {
         return {
           id: burial.id,
           name: burial.name,
+          parentId: burial.parentId,
           coord: burial.coord,
           person: burial.person,
           birthDate: burial.birthDate,
@@ -333,19 +335,17 @@ export default {
     confirmQuarterEdit () {
       this.$store.dispatch('doUpdateCemeteryQuarter', this.currentQuarter)
       this.editQuarterDialog = false
-      this.currentQuarter = null
     },
 
     confirmAreaEdit () {
       this.$store.dispatch('doUpdateCemeteryArea', this.currentArea)
       this.editAreaDialog = false
-      this.currentArea = null
     },
 
     confirmBurialEdit () {
       this.$store.dispatch('doUpdateCemeteryBurial', this.currentBurial)
       this.editBurialDialog = false
-      this.currentBurial = null
+      // this.currentBurial = null
     },
 
     doRemoveItem (id, mode) {
@@ -366,6 +366,7 @@ export default {
     },
 
     checkDate (val) {
+      console.log(val)
       return true
     },
 

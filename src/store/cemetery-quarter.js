@@ -19,9 +19,9 @@ const mutations = {
       state.cemeteryQuarters.splice(removeId, 1)
     }
   },
-  updateCemeteryQuarter (state, cemeteryQuarter) {
-    const idx = state.cemeteryQuarters.findIndex(area => area.id === cemeteryQuarter.id)
-    state.cemeteryQuarters[idx] = cemeteryQuarter
+  updateCemeteryQuarter (state, quarter) {
+    const idx = state.cemeteryQuarters.findIndex(item => item.id === quarter.id)
+    state.cemeteryQuarters[idx] = quarter
   }
 }
 
