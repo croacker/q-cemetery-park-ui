@@ -48,10 +48,12 @@ export default {
       const panel = this
       panel.gmap = new google.maps.Map(this.$refs.gmapAreas, {
         center: {
-          lat: 52.329737,
-          lng: 104.179257
+          lat: 52.2753778563772,
+          lng: 104.49209559111372
         },
-        zoom: 22
+        zoom: 18,
+        // mapTypeId: 'satellite'
+        mapTypeId: 'satellite'
       })
 
       this.cemeteryPolygons.forEach(area => {
