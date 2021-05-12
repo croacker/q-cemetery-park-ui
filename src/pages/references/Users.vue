@@ -23,9 +23,9 @@
         <q-btn color="primary" :disable="loading" icon="person_add" class="q-ml-md" @click="createNewUser">
           <q-tooltip>Создать</q-tooltip>
         </q-btn>
-<!--        <q-btn color="primary" :disable="loading" icon="mode_edit" class="q-ml-md">-->
-<!--          <q-tooltip>Редактировать</q-tooltip>-->
-<!--        </q-btn>-->
+        <q-btn color="primary" :disable="loading" icon="mode_edit" class="q-ml-md">
+          <q-tooltip>Редактировать</q-tooltip>
+        </q-btn>
         <q-btn color="red" :disable="loading" icon="person_off" class="q-ml-md">
           <q-tooltip>Удалить</q-tooltip>
         </q-btn>

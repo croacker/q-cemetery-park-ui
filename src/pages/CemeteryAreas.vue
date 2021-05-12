@@ -53,7 +53,7 @@ export default {
         },
         zoom: 18,
         // mapTypeId: 'satellite'
-        mapTypeId: 'satellite'
+        mapTypeId: 'terrain'
       })
 
       this.cemeteryPolygons.forEach(area => {
