@@ -13,7 +13,7 @@
             aria-label="Menu"
             @click="leftDrawerOpen = !leftDrawerOpen"/>
           <q-space />
-          <q-input style="width: 400px;" v-model="searchText" label="Поиск" @keydown.enter="onSearchClick"/>
+          <q-input style="width: 400px;" v-model="searchText" label="Поиск по ФИО" @keydown.enter="onSearchClick"/>
           <q-btn flat round dense icon="search" @click="onSearchClick"/>
           <q-btn dense flat round icon="menu" @click="rightDrawerOpen = !rightDrawerOpen" />
           <div></div>
@@ -85,7 +85,7 @@
           <q-list bordered>
             <q-item v-for="burial in searchResultBurials" :key="burial.id" clickable v-ripple @click="onSearchItemClick(burial.id)">
               <q-item-section top  thumbnail>
-                <img src="http://skorbim.com/getimgwide.php?url=usr/memory/import/26204/1_1.jpg;600;400;SX">
+                <img src="~assets/burrial.jpg">
               </q-item-section>
               <q-item-section>{{ burial.name }} - {{ burial.person }}</q-item-section>
             </q-item>

@@ -212,7 +212,7 @@
           </div>
           <div class="col-6">
             <q-img
-              src="http://skorbim.com/getimgwide.php?url=usr/memory/import/26204/1_1.jpg;600;400;SX"
+              src="~assets/burrial.jpg"
               style="max-width: 310px"
               :ratio="16/9"
             />
