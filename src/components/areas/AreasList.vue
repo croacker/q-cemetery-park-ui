@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="q-pl-xs">
-      <q-toolbar class="bg-primary text-white">
+      <q-toolbar class="bg-primary text-white q-mt-xs">
         <q-toolbar-title>Элементы плана</q-toolbar-title>
 
         <q-btn flat round dense icon="add" @click="onAddQuarter()">
@@ -79,7 +79,7 @@
                     </q-icon>
                   </q-item-section>
                   <q-item-section>
-                    <q-item-label multiline>Захоронение {{ burial.name }}</q-item-label>
+                    <q-item-label multiline>{{ getBurialLabel(burial) }}</q-item-label>
                   </q-item-section>
 
                   <q-item-section top side>
@@ -157,58 +157,77 @@
     </q-dialog>
 
     <q-dialog v-model="editBurialDialog" persistent @keydown.esc="onEsc">
-      <q-card style="min-width: 350px">
+      <q-card style="min-width: 635px;">
         <q-card-section>
           <div class="text-h6">Захоронение {{currentBurial.id}}</div>
         </q-card-section>
+        <div class="row">
+          <div class="col-6">
+            <q-card-section class="q-pt-none">
+              <q-input dense v-model="currentBurial.name" label="Номер"/>
+            </q-card-section>
 
-        <q-card-section class="q-pt-none">
-          <q-input dense v-model="currentBurial.name" label="Номер"/>
-        </q-card-section>
+            <q-card-section class="q-pt-none">
+              <q-input dense v-model="currentBurial.person" label="Фамилия Имя Отчество"/>
+            </q-card-section>
 
-        <q-card-section class="q-pt-none">
-          <q-input dense v-model="currentBurial.person" label="Фамилия Имя Отчество"/>
-        </q-card-section>
+            <q-card-section class="q-pt-none">
+              <q-input filled v-model="currentBurial.birthDate" mask="##/##/####" :rules="[checkDate]"
+                       label="Дата рождения">
+                <template v-slot:append>
+                  <q-icon name="event" class="cursor-pointer">
+                    <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
+                      <q-date v-model="currentBurial.birthDate" mask="DD/MM/YYYY">
+                        <div class="row items-center justify-end">
+                          <q-btn v-close-popup label="Ок" color="primary" flat/>
+                        </div>
+                      </q-date>
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+              </q-input>
+            </q-card-section>
 
-        <q-card-section class="q-pt-none">
-          <q-input filled v-model="currentBurial.birthDate" mask="##/##/####" :rules="[checkDate]" label="Дата рождения">
-            <template v-slot:append>
-              <q-icon name="event" class="cursor-pointer">
-                <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
-                  <q-date v-model="currentBurial.birthDate" mask="DD/MM/YYYY">
-                    <div class="row items-center justify-end">
-                      <q-btn v-close-popup label="Ок" color="primary" flat />
-                    </div>
-                  </q-date>
-                </q-popup-proxy>
-              </q-icon>
-            </template>
-          </q-input>
-        </q-card-section>
+            <q-card-section class="q-pt-none">
+              <q-input filled v-model="currentBurial.deathDate" mask="##/##/####" :rules="[checkDate]"
+                       label="Дата смерти">
+                <template v-slot:append>
+                  <q-icon name="event" class="cursor-pointer">
+                    <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
+                      <q-date v-model="currentBurial.deathDate" mask="DD/MM/YYYY">
+                        <div class="row items-center justify-end">
+                          <q-btn v-close-popup label="Ок" color="primary" flat/>
+                        </div>
+                      </q-date>
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+              </q-input>
+            </q-card-section>
 
-        <q-card-section class="q-pt-none">
-          <q-input filled v-model="currentBurial.deathDate" mask="##/##/####" :rules="[checkDate]" label="Дата смерти">
-            <template v-slot:append>
-              <q-icon name="event" class="cursor-pointer">
-                <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
-                  <q-date v-model="currentBurial.deathDate" mask="DD/MM/YYYY">
-                    <div class="row items-center justify-end">
-                      <q-btn v-close-popup label="Ок" color="primary" flat />
-                    </div>
-                  </q-date>
-                </q-popup-proxy>
-              </q-icon>
-            </template>
-          </q-input>
-        </q-card-section>
-
-        <q-card-section class="q-pt-none">
-          <q-input dense v-model="currentBurial.description" filled type="text" autogrow label="Контакты родственников"/>
-        </q-card-section>
-
+            <q-card-section class="q-pt-none">
+              <q-input dense v-model="currentBurial.description" filled type="text" autogrow
+                       label="Контакты родственников"/>
+            </q-card-section>
+          </div>
+          <div class="col-6">
+            <q-img
+              src="http://skorbim.com/getimgwide.php?url=usr/memory/import/26204/1_1.jpg;600;400;SX"
+              style="max-width: 310px"
+              :ratio="16/9"
+            />
+            <q-uploader
+              class="q-mt-xs"
+              url="http://localhost:4444/upload"
+              style="max-width: 310px"
+              label="Загрузить фотогарфии"
+              multiple
+            />
+          </div>
+        </div>
         <q-card-actions align="right" class="text-primary">
-          <q-btn flat label="ОК" @click="confirmBurialEdit"  />
-          <q-btn flat label="Отмена" v-close-popup />
+          <q-btn flat label="ОК" @click="confirmBurialEdit"/>
+          <q-btn flat label="Отмена" v-close-popup/>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -375,6 +394,18 @@ export default {
       this.editAreaDialog = false
       this.editQuarterDialog = false
       this.editBurialDialog = false
+    },
+
+    getBurialLabel (burial) {
+      let label = 'Захоронение ' + burial.name
+      if (burial.person) {
+        label = burial.person
+      }
+      return label
+    },
+
+    burialImageExists () {
+      return !!this.currentBurial.img
     }
   }
 }

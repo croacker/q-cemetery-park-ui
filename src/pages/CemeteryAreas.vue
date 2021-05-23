@@ -1,33 +1,24 @@
 <template>
   <div class="row">
-    <div class="col-10">
+    <div class="col">
       <div
         id="gmapAreas"
         ref="gmapAreas"
-        style="width: 100%; height: 800px"
+        style="width: 100%; height: 800px;"
         @keydown.esc="onEsc"
       ></div>
-    </div>
-    <div class="col-2">
-      <areas-list
-        @onRemoveItemFromList="onRemoveItemFromList"
-        @onSelectItemFromList="onSelectItemFromList"
-        @onAddQuarter="onAddQuarter"
-        @onAddArea="onAddArea"
-        @onAddBurial="onAddBurial"/>
     </div>
   </div>
 </template>
 
 <script>
-import areasList from '../components/areas/AreasList'
+import EventBus from '../event-bus'
 
 const google = window.google
 
 export default {
   name: 'cemeteryAreas',
   components: {
-    areasList
   },
   data () {
     return {
@@ -41,6 +32,11 @@ export default {
   mounted () {
     this.initPolygons()
     this.initMap()
+    EventBus.$on('onRemoveItemFromList', this.onRemoveItemFromList)
+    EventBus.$on('onSelectItemFromList', this.onSelectItemFromList)
+    EventBus.$on('onAddQuarter', this.onAddQuarter)
+    EventBus.$on('onAddArea', this.onAddArea)
+    EventBus.$on('onAddBurial', this.onAddBurial)
   },
 
   methods: {
@@ -52,7 +48,6 @@ export default {
           lng: 104.49209559111372
         },
         zoom: 18,
-        // mapTypeId: 'satellite'
         mapTypeId: 'terrain'
       })
 
@@ -165,36 +160,36 @@ export default {
       this.addCemeteryPolygon(polygonStored)
     },
 
-    onSelectItemFromList (id) {
+    onSelectItemFromList (e) {
       this.clearEditable()
-      const area = this.cemeteryPolygons.find(area => { return area.id === id })
+      const area = this.cemeteryPolygons.find(area => { return area.id === e.id })
       area.overlay.setEditable(true)
       this.drawingManager.setDrawingMode(null)
       const latLng = { lat: area.coord[0][0], lng: area.coord[0][1] }
       this.gmap.setCenter(latLng)
     },
 
-    onRemoveItemFromList (id, mode) {
-      const area = this.cemeteryPolygons.find(area => { return area.id === id })
+    onRemoveItemFromList (e) {
+      const area = this.cemeteryPolygons.find(area => { return area.id === e.id })
       area.overlay.setMap(null)
     },
 
     clearEditable () {
       this.cemeteryPolygons.forEach(polygon => { polygon.overlay.setEditable(false) })
     },
-    onAddQuarter () {
+    onAddQuarter (e) {
       this.clearEditable()
       this.addPolygonMode = 'quarter'
       this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON)
       this.showNotif()
     },
-    onAddArea (quarterId) {
+    onAddArea (e) {
       this.clearEditable()
       this.addPolygonMode = 'area'
       this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON)
       this.showNotif()
     },
-    onAddBurial (areaId) {
+    onAddBurial (e) {
       this.clearEditable()
       this.addPolygonMode = 'burial'
       this.drawingManager.setDrawingMode(google.maps.drawing.OverlayType.POLYGON)
