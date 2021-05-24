@@ -47,8 +47,8 @@ export default {
           lat: 52.2753778563772,
           lng: 104.49209559111372
         },
-        zoom: 18,
-        mapTypeId: 'terrain'
+        zoom: 18
+        // ,mapTypeId: 'satellite'
       })
 
       this.cemeteryPolygons.forEach(area => {

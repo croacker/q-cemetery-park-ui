@@ -73,7 +73,7 @@
       </q-drawer>
     </q-layout>
 
-    <q-dialog v-model="searchResultDialog" style="min-width: 635px;">
+    <q-dialog v-model="searchResultDialog" :position="'top'" style="min-width: 635px;">
       <q-card>
         <q-card-section>
           <div class="text-h6">Результаты поиска</div>
@@ -91,7 +91,6 @@
             </q-item>
           </q-list>
         </q-card-section>
-
         <q-separator />
 
         <q-card-actions align="right">
