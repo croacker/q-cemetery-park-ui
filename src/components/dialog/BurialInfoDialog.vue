@@ -18,7 +18,7 @@
           </div>
           <div class="col-auto text-grey text-caption q-pt-md row no-wrap items-center">
             <q-icon name="place" />
-            250 ft
+            250 м
           </div>
         </div>
       </q-card-section>
