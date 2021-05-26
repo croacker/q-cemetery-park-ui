@@ -364,7 +364,6 @@ export default {
     confirmBurialEdit () {
       this.$store.dispatch('doUpdateCemeteryBurial', this.currentBurial)
       this.editBurialDialog = false
-      // this.currentBurial = null
     },
 
     doRemoveItem (id, mode) {

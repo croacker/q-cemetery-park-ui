@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import VuexPersistence from 'vuex-persist'
 import VueApexCharts from 'vue-apexcharts'
 
+import app from './app'
 import cemeteryArea from './cemetery-area'
 import cemeteryBurial from './cemetery-burial'
 import cemeteryQuarter from './cemetery-quarter'
@@ -20,6 +21,7 @@ const vuexSessionStorage = new VuexPersistence({
 export default function (/* { ssrContext } */) {
   const Store = new Vuex.Store({
     modules: {
+      app,
       cemeteryArea,
       cemeteryBurial,
       cemeteryQuarter,

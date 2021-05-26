@@ -100,11 +100,15 @@
       </q-card>
     </q-dialog>
 
+    <burial-info-dialog></burial-info-dialog>
+
   </div>
 </template>
 
 <script>
 import areasList from '../components/areas/AreasList'
+import burialInfoDialog from '../components/dialog/BurialInfoDialog'
+
 import EventBus from '../event-bus'
 
 const menuList = [
@@ -145,7 +149,8 @@ const menuList = [
 export default {
   name: 'MainLayout',
   components: {
-    areasList
+    areasList,
+    burialInfoDialog
   },
   data () {
     return {
@@ -211,9 +216,14 @@ export default {
     },
 
     onSearchItemClick (id) {
-      console.log(id)
+      const currentBurial = this.$store.getters.cemeteryBurials.find(burial => {
+        return burial.id === id
+      })
+      console.log(currentBurial)
+      this.$store.commit('currentCemeteryBurial', currentBurial)
       this.searchResultDialog = false
       this.onSelectItemFromList(id)
+      this.$store.dispatch('showBurialInfoDialog', {})
     }
   }
 }
